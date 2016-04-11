@@ -1,6 +1,7 @@
 package com.ist174008.prof.cmov.cmov;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.AdapterView;
@@ -54,10 +55,9 @@ public class SocialActivity extends AppCompatActivity {
                 // ListView Clicked item value
                 String itemValue = (String) listItems.getItemAtPosition(position);
 
-                // Show Alert
-                Toast.makeText(getApplicationContext(),
-                        "Position :" + position + "  ListItem : " + itemValue, Toast.LENGTH_LONG)
-                        .show();
+                Intent intent = new Intent(SocialActivity.this, MessageActivity.class);
+                intent.putExtra("contact_name", itemValue);
+                startActivity(intent);
 
             }
 
