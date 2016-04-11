@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -23,6 +25,18 @@ public class BookBikeActivity extends Activity {
     private ArrayList<String> stations;
     private ArrayAdapter<String> stationsAdapter;
 
+    String[] values = new String[] { "Av.Liberdade",
+            "Rossio",
+            "Marquês de Pombal",
+            "C.C Colombo",
+            "Estádio da Luz",
+            "Alvalade Xixi",
+            "Parque das Nações",
+            "Aeroporto",
+            "Largo de Camões"
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
@@ -31,19 +45,28 @@ public class BookBikeActivity extends Activity {
         String location = (String)intent.getExtras().get("Location");
         Log.d("Location", location);
 
+        lvStations=(ListView)findViewById(R.id.listBookBike);
 
-        lvStations = (ListView) findViewById(R.id.listBookBike);
-        stations = new ArrayList<String>();
-        stationsAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1, stations);
+        stationsAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,android.R.id.text1,values);
         lvStations.setAdapter(stationsAdapter);
-        stations.add("Av.Liberdade");
-        stations.add( "Rossio");
-        stations.add("Marquês de Pombal") ;
-        stations.add("C.C Colombo");
-        stations.add("Estádio da Luz");
-        stations.add("Alvalade Xixi");
-        stations.add("Parque das Nações");
-        stations.add("Aeroporto");
+        lvStations.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+
+                // ListView Clicked item value
+                String itemValue = (String) lvStations.getItemAtPosition(position);
+
+                // Show Alert
+                Toast.makeText(getApplicationContext(),
+                        "Position :" + position + "  ListItem : " + itemValue, Toast.LENGTH_LONG)
+                        .show();
+
+            }
+
+        });
+
 
     }
 
