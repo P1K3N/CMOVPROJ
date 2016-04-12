@@ -40,7 +40,7 @@ public class MessageActivity extends AppCompatActivity {
 
     public void getContactName(){
         Bundle bundle = getIntent().getExtras();
-        int value = bundle.getInt("contact_name");
+        String value = bundle.getString("contact_name");
 
         contactName.append("Send a Message to " + value);
         sendPoints.append("Send some points too :)");

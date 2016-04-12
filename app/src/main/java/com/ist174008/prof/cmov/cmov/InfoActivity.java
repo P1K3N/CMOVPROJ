@@ -23,11 +23,27 @@ public class InfoActivity extends AppCompatActivity {
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_user_info);
-        userPoints = (TextView) findViewById(R.id.textPoints);
-        userPoints.setText("You have acumulated 50 Points");
 
+        userPoints = (TextView) findViewById(R.id.textPoints);
+        guiSetButtonListeners();
+
+        updateTextView();
     }
 
+    public void updateTextView(){
+        userPoints.append("You have accumulated 50 Points");
+    }
+
+    private OnClickListener btnToTraj = new OnClickListener() {
+        public void onClick(View v){
+            Intent intent = new Intent(v.getContext(), TrajectoriesActivity.class);
+            startActivity(intent);
+        }
+    };
+
+    private void guiSetButtonListeners() {
+        findViewById(R.id.btnToTraj).setOnClickListener(btnToTraj);
+    }
 }
 
 

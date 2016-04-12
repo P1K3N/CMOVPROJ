@@ -8,11 +8,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
         android:id="@+id/textPoints"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="174dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Past Trajectories"
+        android:id="@+id/btnToTraj"
+        android:layout_below="@+id/textPoints"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="102dp" />
 
 
 </RelativeLayout>

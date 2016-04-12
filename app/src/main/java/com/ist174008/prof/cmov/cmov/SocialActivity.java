@@ -21,14 +21,14 @@ public class SocialActivity extends AppCompatActivity {
     ListView listItems;
 
     // Defined Array values to show in ListView
-    String[] values = new String[] { "Android List View",
-            "Adapter implementation",
-            "Simple List View In Android",
-            "Create List View Android",
+    String[] values = new String[] { "Antonio",
+            "Jose",
+            "Joaquim ",
+            "Creae ndroid",
             "Android Example",
-            "List View Source Code",
-            "List View Array Adapter",
-            "Android Example List View"
+            "List V Code",
+            "List VAter",
+            "Andrewd"
     };
 
 
@@ -60,7 +60,6 @@ public class SocialActivity extends AppCompatActivity {
                 startActivity(intent);
 
             }
-
         });
 
     }

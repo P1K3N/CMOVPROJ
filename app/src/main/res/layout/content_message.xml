@@ -16,13 +16,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Large Text"
             android:id="@+id/textViewContactName"
             android:layout_gravity="center_horizontal" />
 
         <EditText
             android:layout_width="match_parent"
-            android:layout_height="200px"
+            android:layout_height="100dp"
             android:hint="Enter Message"
             android:id="@+id/editTextMessage"
             android:layout_gravity="center_horizontal" />
@@ -31,14 +30,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Large Text"
             android:id="@+id/textViewPoints"
             android:layout_gravity="center_horizontal" />
 
         <EditText
             android:layout_width="match_parent"
             android:hint="Enter Points"
-            android:layout_height="100px"
+            android:layout_height="50dp"
             android:id="@+id/editTextPoints" />
 
         <Button

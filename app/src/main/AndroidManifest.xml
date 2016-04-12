@@ -31,7 +31,7 @@
 
         <activity
             android:name=".HomeActivity"
-            android:parentActivityName=".HomeActivity" >
+            android:parentActivityName=".LoginActivity" >
 
         </activity>
         <activity
@@ -59,6 +59,11 @@
         <activity
             android:name=".SocialActivity"
             android:parentActivityName=".HomeActivity" >
+
+        </activity>
+        <activity
+            android:name=".MessageActivity"
+            android:parentActivityName=".SocialActivity" >
 
         </activity>
 
