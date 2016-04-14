@@ -2,8 +2,8 @@ package com.ist174008.prof.cmov.cmov;
 
 import android.os.AsyncTask;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -14,10 +14,14 @@ import java.net.Socket;
 /**
  * Created by ist174008 on 13/04/2016.
  */
-public class ConnectServer extends AsyncTask<String, Void, String> {
+public class SendPointsToServer extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "MyActivity";
+    private static final String TAG = "PointsAct";
+    private View rootView;
 
+    public SendPointsToServer(View v){
+        this.rootView=v;
+    }
 
     @Override
     protected void onPreExecute() {}
@@ -33,19 +37,15 @@ public class ConnectServer extends AsyncTask<String, Void, String> {
 
             JSONObject message = new JSONObject();
 
-            message.put("Type", "Register");
+            message.put("Type", "Points");
 
-            message.put("Username", inputString);
+            message.put("Username", inputString[0]);
 
-            message.put("Password", "example");
-
-            message.put("Score", 100);
 
             outBound.writeObject(message.toString());
 
             boolean response = (boolean) inBound.readObject();
 
-            Log.v(TAG, "success");
             socket.close();
 
 
@@ -53,7 +53,7 @@ public class ConnectServer extends AsyncTask<String, Void, String> {
             Log.v(TAG, "fail" + e.getMessage());
         }
 
-        return "post";
+        return "response";
 
     }
 
@@ -63,6 +63,7 @@ public class ConnectServer extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String result) {
 
-        //showDialog("ended " + result);
+        //TextView txt = (TextView) rootView.findViewById(R.id.textPoints);
+       // txt.append("ended " + result);
     }
 }

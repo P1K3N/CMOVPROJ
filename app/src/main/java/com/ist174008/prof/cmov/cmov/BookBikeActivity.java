@@ -41,6 +41,7 @@ public class BookBikeActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_book_bike);
+
         Intent intent = getIntent();
         String location = (String)intent.getExtras().get("Location");
         Log.d("Location", location);
@@ -66,10 +67,6 @@ public class BookBikeActivity extends Activity {
             }
 
         });
-
-
     }
-
-
-    }
+}
 

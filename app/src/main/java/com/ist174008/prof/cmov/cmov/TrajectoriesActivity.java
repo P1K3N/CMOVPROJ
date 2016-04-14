@@ -29,8 +29,7 @@ public class TrajectoriesActivity extends Activity {
     };
 
         @Override
-        public void onCreate(Bundle savedInstanceState)
-        {
+        public void onCreate(Bundle savedInstanceState){
             super.onCreate(savedInstanceState);
             setContentView(R.layout.content_trajectories);
 

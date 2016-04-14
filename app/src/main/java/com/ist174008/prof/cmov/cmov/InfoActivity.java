@@ -17,7 +17,6 @@ public class InfoActivity extends AppCompatActivity {
 
     private TextView userPoints;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -27,11 +26,15 @@ public class InfoActivity extends AppCompatActivity {
         userPoints = (TextView) findViewById(R.id.textPoints);
         guiSetButtonListeners();
 
+        String userName = ((Global) this.getApplication()).getUser();
+        String pass = ((Global) this.getApplication()).getPassword();
+
+        new GetPointsFromServer(findViewById(android.R.id.content)).execute(userName,pass);
         updateTextView();
     }
 
     public void updateTextView(){
-        userPoints.append("You have accumulated 50 Points");
+       // userPoints.append("You have accumulated" + points + " Points");
     }
 
     private OnClickListener btnToTraj = new OnClickListener() {
