@@ -16,7 +16,7 @@ import java.net.Socket;
  */
 public class SendTrajectoriesToServer extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "TrajAct";
+    private static final String TAG = "SendTraj";
     private View rootView;
 
     public SendTrajectoriesToServer(View v) {
@@ -29,8 +29,8 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... inputString) {
         try {
+            int j = Integer.parseInt(inputString[2]); // NUMBER OF LOCATIONS OBJECTS TO SEND
 
-            int j = 10; // NUMBER OF LOCATIONS OBJECTS TO SEND
             Socket socket = new Socket("10.0.2.2", 6000);
 
             ObjectOutputStream outBound = new ObjectOutputStream(socket.getOutputStream());
@@ -42,6 +42,10 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, String> {
             message.put("Type", "New Trajectory");
 
             message.put("Username", inputString[0]);
+
+            message.put("Password", inputString[1]);
+
+            message.put("Locations", j);
 
             outBound.writeObject(message.toString());
 

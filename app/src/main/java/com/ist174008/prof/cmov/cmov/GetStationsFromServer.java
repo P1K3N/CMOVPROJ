@@ -15,7 +15,7 @@ import java.net.Socket;
  */
 public class GetStationsFromServer extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "TrajAct";
+    private static final String TAG = "GetStations";
     private View rootView;
 
     public GetStationsFromServer(View v) {
@@ -39,6 +39,8 @@ public class GetStationsFromServer extends AsyncTask<String, Void, String> {
             message.put("Type", "Stations");
 
             message.put("Username", inputString[0]);
+
+            message.put("Password", inputString[1]);
 
 
             outBound.writeObject(message.toString());

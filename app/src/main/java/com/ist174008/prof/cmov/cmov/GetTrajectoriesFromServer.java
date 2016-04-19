@@ -16,7 +16,7 @@ import java.net.Socket;
  */
 public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "TrajAct";
+    private static final String TAG = "GetTraj";
     private View rootView;
 
     public GetTrajectoriesFromServer(View v) {
@@ -40,6 +40,8 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String> {
             message.put("Type", "Show Trajectories");
 
             message.put("Username", inputString[0]);
+
+            message.put("Password", inputString[1]);
 
 
             outBound.writeObject(message.toString());

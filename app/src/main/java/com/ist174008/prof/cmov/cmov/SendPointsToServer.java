@@ -16,7 +16,7 @@ import java.net.Socket;
  */
 public class SendPointsToServer extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "PointsAct";
+    private static final String TAG = "SendPoints";
     private View rootView;
 
     public SendPointsToServer(View v){
@@ -37,10 +37,11 @@ public class SendPointsToServer extends AsyncTask<String, Void, String> {
 
             JSONObject message = new JSONObject();
 
-            message.put("Type", "Points");
+            message.put("Type", "New Points");
 
             message.put("Username", inputString[0]);
 
+            message.put("Password", inputString[1]);
 
             outBound.writeObject(message.toString());
 

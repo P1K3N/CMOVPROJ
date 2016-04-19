@@ -17,7 +17,7 @@ import java.net.Socket;
  */
 public class GetPointsFromServer extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "PointsAct";
+    private static final String TAG = "GetPoints";
     private View rootView;
 
     public GetPointsFromServer(View v){
