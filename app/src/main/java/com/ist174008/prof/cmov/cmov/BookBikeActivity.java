@@ -1,16 +1,23 @@
 package com.ist174008.prof.cmov.cmov;
 
-import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.Gravity;
+
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.util.ArrayList;
 
@@ -18,35 +25,30 @@ import java.util.ArrayList;
 /**
  * Created by ist174008 on 21/03/2016.
  */
-public class BookBikeActivity extends Activity {
+public class BookBikeActivity extends FragmentActivity implements OnMapReadyCallback {
 
-
-    private ListView lvStations;
+    /*private ListView lvStations;
     private ArrayList<String> stations;
-    private ArrayAdapter<String> stationsAdapter;
+    private ArrayAdapter<String> stationsAdapter;*/
 
-    String[] values = new String[] { "Av.Liberdade",
-            "Rossio",
-            "Marquês de Pombal",
-            "C.C Colombo",
-            "Estádio da Luz",
-            "Alvalade Xixi",
-            "Parque das Nações",
-            "Aeroporto",
-            "Largo de Camões"
-    };
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_book_bike);
 
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+
         Intent intent = getIntent();
-        String location = (String)intent.getExtras().get("Location");
+        String location = (String) intent.getExtras().get("Location");
         Log.d("Location", location);
 
-        lvStations=(ListView)findViewById(R.id.listBookBike);
+    }
+
+       /* lvStations=(ListView)findViewById(R.id.listBookBike);
 
         stationsAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,android.R.id.text1,values);
         lvStations.setAdapter(stationsAdapter);
@@ -67,6 +69,11 @@ public class BookBikeActivity extends Activity {
             }
 
         });
+    }*/
+
+    @Override
+    public void onMapReady(GoogleMap map) {
+        map.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
     }
 }
 
