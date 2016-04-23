@@ -30,7 +30,6 @@ public class InfoActivity extends AppCompatActivity {
         String pass = ((Global) this.getApplication()).getPassword();
 
         new GetPointsFromServer(findViewById(android.R.id.content)).execute(userName,pass);
-        updateTextView();
     }
 
     public void updateTextView(){

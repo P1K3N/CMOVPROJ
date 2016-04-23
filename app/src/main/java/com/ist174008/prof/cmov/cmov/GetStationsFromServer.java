@@ -1,32 +1,36 @@
 package com.ist174008.prof.cmov.cmov;
 
+
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.View;
-
 import org.json.JSONObject;
-
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by ist174008 on 13/04/2016.
  */
-public class GetStationsFromServer extends AsyncTask<String, Void, String> {
+public class GetStationsFromServer extends AsyncTask<String, Void, List<Double>> {
 
     private static final String TAG = "GetStations";
-    private View rootView;
+    private BookBikeActivity activity;
+    private List<String> name = new ArrayList<>();
+    private List<Double> longitude = new ArrayList<>();
+    private List<Double> latitude = new ArrayList<>();
+    private List<String> bike = new ArrayList<>();
 
-    public GetStationsFromServer(View v) {
-        this.rootView=v;
+    public GetStationsFromServer(BookBikeActivity act) {
+        this.activity=act;
     }
 
     @Override
     protected void onPreExecute() {}
 
     @Override
-    protected String doInBackground(String... inputString) {
+    protected List<Double> doInBackground(String... inputString) {
         try {
             Socket socket = new Socket("10.0.2.2", 6000);
 
@@ -36,25 +40,60 @@ public class GetStationsFromServer extends AsyncTask<String, Void, String> {
 
             JSONObject message = new JSONObject();
 
-            message.put("Type", "Stations");
-
-            message.put("Username", inputString[0]);
-
-            message.put("Password", inputString[1]);
-
+            message.put("Type", "List Stations");
 
             outBound.writeObject(message.toString());
 
-            boolean response = (boolean) inBound.readObject();
+            String response = (String) inBound.readObject();
+
+            message = new JSONObject(response);
+
+            int numberOfStations = message.getInt("Stations");
+
+            if(numberOfStations == 0) {
+                socket.close();
+
+                throw new SecurityException("No available station...");
+            }
+
+            outBound.writeObject("");
+
+            ArrayList<JSONObject> jsonArray = new ArrayList<>();
+
+            for(int i = 0; i < numberOfStations; i++) {
+                response = (String) inBound.readObject();
+
+                message = new JSONObject(response);
+
+                jsonArray.add(message);
+
+                outBound.writeObject("");
+            }
+
+            boolean ack = (boolean) inBound.readObject();
+
+            if(!ack) {
+                socket.close();
+                throw new SecurityException("Failed to show Stations...");
+            }
+
+            for (JSONObject json : jsonArray) {
+                name.add(json.getString("Name"));
+                latitude.add(json.getDouble("Latitude"));
+                longitude.add(json.getDouble("Longitude"));
+                bike.add(json.getString("Bikes"));
+            }
 
             socket.close();
-
 
         } catch (Throwable e) {
             Log.v(TAG, "fail" + e.getMessage());
         }
 
-        return "response";
+        List<Double> newList = new ArrayList<>(latitude);
+        newList.addAll(longitude);
+
+        return newList;
 
     }
 
@@ -62,9 +101,9 @@ public class GetStationsFromServer extends AsyncTask<String, Void, String> {
     protected void onProgressUpdate(Void... values) {}
 
     @Override
-    protected void onPostExecute(String result) {
+    protected void onPostExecute(List<Double> result) {
 
-        //TextView txt = (TextView) rootView.findViewById(R.id.textPoints);
-        //txt.append("ended " + result);
+        this.activity.setStations(result);
+
     }
 }

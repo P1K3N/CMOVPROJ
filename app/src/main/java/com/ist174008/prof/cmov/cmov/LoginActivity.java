@@ -2,10 +2,12 @@ package com.ist174008.prof.cmov.cmov;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View.OnClickListener;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -17,6 +19,10 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_login);
+
+        if( savedInstanceState != null ) {
+            Toast.makeText(this, savedInstanceState .getString("loginInfo"), Toast.LENGTH_LONG).show();
+        }
         guiSetButtonListeners();
 
         editMail = (EditText) findViewById(R.id.editTextEmail);
@@ -24,6 +30,14 @@ public class LoginActivity extends AppCompatActivity {
         g = ((Global)getApplicationContext());
 
     }
+
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putString("loginInfo",editMail.getText().toString());
+        }
+
 
     private OnClickListener btnLOGIN2 = new OnClickListener() {
         public void onClick(View v){

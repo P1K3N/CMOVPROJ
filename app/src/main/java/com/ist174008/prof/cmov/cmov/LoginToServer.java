@@ -13,7 +13,7 @@ import java.net.Socket;
  */
 public class LoginToServer extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "MyActivity";
+    private static final String TAG = "LoginToServer";
 
 
     @Override

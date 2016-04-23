@@ -19,6 +19,7 @@ public class GetPointsFromServer extends AsyncTask<String, Void, String> {
 
     private static final String TAG = "GetPoints";
     private View rootView;
+    private String response;
 
     public GetPointsFromServer(View v){
         this.rootView=v;
@@ -46,7 +47,7 @@ public class GetPointsFromServer extends AsyncTask<String, Void, String> {
 
             outBound.writeObject(message.toString());
 
-            boolean response = (boolean) inBound.readObject();
+            response = (String) inBound.readObject();
 
             socket.close();
 
@@ -54,7 +55,7 @@ public class GetPointsFromServer extends AsyncTask<String, Void, String> {
             Log.v(TAG, "fail" + e.getMessage());
         }
 
-        return "response";
+        return response;
 
     }
 
@@ -64,7 +65,7 @@ public class GetPointsFromServer extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String result) {
 
-        //TextView txt = (TextView) rootView.findViewById(R.id.textPoints);
-       // txt.append("ended " + result);
+        TextView txt = (TextView) rootView.findViewById(R.id.textPoints);
+        txt.append("You have accumulated " + result + " Points");
     }
 }

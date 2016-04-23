@@ -1,36 +1,33 @@
 package com.ist174008.prof.cmov.cmov;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+
 import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * Created by ist174008 on 21/03/2016.
  */
-public class BookBikeActivity extends FragmentActivity implements OnMapReadyCallback {
+public class BookBikeActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
-    /*private ListView lvStations;
-    private ArrayList<String> stations;
-    private ArrayAdapter<String> stationsAdapter;*/
-
+    private  List<Double> stationsLat= new ArrayList<>();
+    private  List<Double> stationsLong = new ArrayList<>();
+    private int numberOfStations;
 
 
     @Override
@@ -41,39 +38,76 @@ public class BookBikeActivity extends FragmentActivity implements OnMapReadyCall
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
-        Intent intent = getIntent();
-        String location = (String) intent.getExtras().get("Location");
-        Log.d("Location", location);
-
+        new GetStationsFromServer(this).execute();
     }
 
-       /* lvStations=(ListView)findViewById(R.id.listBookBike);
+    public void setStations(List<Double>  stations){
+        int listSize = stations.size();
+        numberOfStations = listSize/2;
 
-        stationsAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,android.R.id.text1,values);
-        lvStations.setAdapter(stationsAdapter);
-        lvStations.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        stationsLat = new ArrayList<>(stations.subList(0,(listSize/2)));
+        stationsLong = new ArrayList<>(stations.subList((listSize/2),listSize));
+    }
 
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
+    public LatLng getCurrentLocation(){
+        Intent intent = getIntent();
+        Location location = (Location) intent.getExtras().get("Location");
 
-                // ListView Clicked item value
-                String itemValue = (String) lvStations.getItemAtPosition(position);
+        if(location !=null) {
+            double currentLat = location.getLatitude();
+            double currentLong = location.getLongitude();
 
-                // Show Alert
-                Toast.makeText(getApplicationContext(),
-                        "Position :" + position + "  ListItem : " + itemValue, Toast.LENGTH_LONG)
-                        .show();
+            LatLng currentPos = new LatLng(currentLat,currentLong);
 
-            }
 
-        });
-    }*/
+            Log.d("CurrentLocation", location.toString());
+            return currentPos;
+        }
+        return null;
+    }
+
 
     @Override
     public void onMapReady(GoogleMap map) {
-        map.addMarker(new MarkerOptions().position(new LatLng(0, 0)).title("Marker"));
+
+        try {
+            map.setMyLocationEnabled(true);
+        }catch(SecurityException e) {
+            Toast.makeText(getApplicationContext(),"location enable " + e.getMessage(),Toast.LENGTH_LONG).show();
+        }
+
+        List<LatLng> stations=new ArrayList<>();
+        for (int i = 0 ; i < numberOfStations; i++){
+            stations.add(new LatLng(stationsLat.get(i), stationsLong.get(i)));
+
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(getCurrentLocation(), 13));
+
+            map.addMarker(new MarkerOptions()
+                    .title("Station " + i)
+                    .position(stations.get(i)));
+        }
+
+        map.addMarker(new MarkerOptions()
+                .title("You are HERE")
+                .position(getCurrentLocation()));
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker){
+        if(marker.getTitle().equals("Station 1")) {
+            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+            startActivity(intent);
+        }
+        if(marker.getTitle().equals("Station 2")) {
+            Intent intent = new Intent(getApplicationContext(), InfoActivity.class); // CHANGE INTENT!!!!
+            startActivity(intent);
+        }
+        if(marker.getTitle().equals("Station 3")) {
+            Intent intent = new Intent(getApplicationContext(), SocialActivity.class);
+            startActivity(intent);
+        }
+
+        return true;
     }
 }
 

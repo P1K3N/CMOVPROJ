@@ -1,6 +1,6 @@
 package com.ist174008.prof.cmov.cmov;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -14,11 +14,11 @@ import android.widget.Toast;
 /**
  * Created by ist174008 on 21/03/2016.
  */
-public class TrajectoriesActivity extends Activity {
-    ListView listTraj;
+public class TrajectoriesActivity extends ListActivity {
+    private ListView listTraj;
 
     // Defined Array values to show in ListView
-    String[] values = new String[] { "Mountain Trail",
+    private String[] values = new String[] { "Mountain Trail",
             "Bike Fav Trail",
             "Coast Trail ",
             "D E",
@@ -35,7 +35,13 @@ public class TrajectoriesActivity extends Activity {
 
             listTraj = (ListView) findViewById(R.id.listViewTraj);
 
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+
+            String mail = ((Global) this.getApplication()).getUser();
+            String password = ((Global) this.getApplication()).getPassword();
+
+            new GetTrajectoriesFromServer(findViewById(android.R.id.content),this.getApplicationContext()).execute(mail,password);
+
+            /*ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                     android.R.layout.simple_list_item_1, android.R.id.text1, values);
 
             listTraj.setAdapter(adapter);
@@ -50,7 +56,10 @@ public class TrajectoriesActivity extends Activity {
                     String itemValue = (String) listTraj.getItemAtPosition(position);
                     Toast.makeText(getApplicationContext(),"oi fatty " + itemValue,Toast.LENGTH_LONG).show();
                 }
-            });
+            });*/
         }
+
+
+
     }
 

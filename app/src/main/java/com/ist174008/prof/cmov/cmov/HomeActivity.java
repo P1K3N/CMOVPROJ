@@ -58,11 +58,6 @@ public  class HomeActivity extends AppCompatActivity implements LocationListener
             }
         };
 
-    /*public void onBookBike(View view) {
-        Intent intent = new Intent(this, BookBikeActivity.class);
-        startActivity(intent);
-
-    }*/
 
     public void onSocial(View view) {
         Intent intent = new Intent(this, SocialActivity.class);
