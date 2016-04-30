@@ -17,11 +17,6 @@ import java.net.Socket;
 public class SendPointsToServer extends AsyncTask<String, Void, String> {
 
     private static final String TAG = "SendPoints";
-    private View rootView;
-
-    public SendPointsToServer(View v){
-        this.rootView=v;
-    }
 
     @Override
     protected void onPreExecute() {}
@@ -62,9 +57,5 @@ public class SendPointsToServer extends AsyncTask<String, Void, String> {
     protected void onProgressUpdate(Void... values) {}
 
     @Override
-    protected void onPostExecute(String result) {
-
-        //TextView txt = (TextView) rootView.findViewById(R.id.textPoints);
-       // txt.append("ended " + result);
-    }
+    protected void onPostExecute(String result) {}
 }

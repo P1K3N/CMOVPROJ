@@ -1,7 +1,10 @@
 package com.ist174008.prof.cmov.cmov;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
+
 import org.json.JSONObject;
 
 import java.io.ObjectInputStream;
@@ -14,6 +17,11 @@ import java.net.Socket;
 public class LoginToServer extends AsyncTask<String, Void, String> {
 
     private static final String TAG = "LoginToServer";
+    private Context mContext;
+
+    public LoginToServer(Context cont){
+        this.mContext = cont;
+    }
 
 
     @Override
@@ -46,9 +54,10 @@ public class LoginToServer extends AsyncTask<String, Void, String> {
 
         } catch (Throwable e) {
             Log.v(TAG, "fail" + e.getMessage());
+            return "Invalid User/Password Combination";
         }
 
-        return "post";
+        return "Welcome bro";
 
     }
 
@@ -56,5 +65,7 @@ public class LoginToServer extends AsyncTask<String, Void, String> {
     protected void onProgressUpdate(Void... values) {}
 
     @Override
-    protected void onPostExecute(String result) {}
+    protected void onPostExecute(String result) {
+        Toast.makeText(mContext,result,Toast.LENGTH_LONG).show();
+    }
 }

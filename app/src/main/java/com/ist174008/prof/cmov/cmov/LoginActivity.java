@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
             g.setUser(mail);
             g.setPassword(password);
 
-            new LoginToServer().execute(mail,password);
+            new LoginToServer(getApplicationContext()).execute(mail,password);
             Intent intent = new Intent(v.getContext(), HomeActivity.class);
             startActivity(intent);
 

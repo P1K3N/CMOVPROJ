@@ -25,8 +25,7 @@ import java.util.List;
  */
 public class BookBikeActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
-    private  List<Double> stationsLat= new ArrayList<>();
-    private  List<Double> stationsLong = new ArrayList<>();
+    private  List<LatLng> finalStations = new ArrayList<>();
     private int numberOfStations;
 
 
@@ -45,8 +44,20 @@ public class BookBikeActivity extends FragmentActivity implements OnMapReadyCall
         int listSize = stations.size();
         numberOfStations = listSize/2;
 
+        List<Double> stationsLat;
+        List<Double> stationsLong;
+
         stationsLat = new ArrayList<>(stations.subList(0,(listSize/2)));
         stationsLong = new ArrayList<>(stations.subList((listSize/2),listSize));
+
+
+        for (int i = 0 ; i < numberOfStations; i++) {
+            finalStations.add(new LatLng(stationsLat.get(i), stationsLong.get(i)));
+        }
+
+        ((Global) this.getApplication()).setStations(finalStations);
+
+
     }
 
     public LatLng getCurrentLocation(){
@@ -76,15 +87,15 @@ public class BookBikeActivity extends FragmentActivity implements OnMapReadyCall
             Toast.makeText(getApplicationContext(),"location enable " + e.getMessage(),Toast.LENGTH_LONG).show();
         }
 
-        List<LatLng> stations=new ArrayList<>();
-        for (int i = 0 ; i < numberOfStations; i++){
-            stations.add(new LatLng(stationsLat.get(i), stationsLong.get(i)));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(getCurrentLocation(), 2));
 
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(getCurrentLocation(), 13));
+
+        List<LatLng>  stationList = ((Global) this.getApplication()).getStations();
+        for (int i = 0 ; i < numberOfStations; i++){
 
             map.addMarker(new MarkerOptions()
                     .title("Station " + i)
-                    .position(stations.get(i)));
+                    .position(stationList.get(i)));
         }
 
         map.addMarker(new MarkerOptions()
