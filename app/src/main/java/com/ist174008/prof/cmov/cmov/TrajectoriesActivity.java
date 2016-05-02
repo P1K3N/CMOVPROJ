@@ -11,24 +11,24 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class TrajectoriesActivity extends ListActivity {
-    private ListView listTraj;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_trajectories);
 
-        listTraj = (ListView) findViewById(R.id.listViewTraj);
+        ListView listTraj = getListView();
 
 
         String mail = ((Global) this.getApplication()).getUser();
         String password = ((Global) this.getApplication()).getPassword();
 
-        new GetTrajectoriesFromServer(findViewById(android.R.id.content),this.getApplicationContext()).execute(mail,password);
+        new GetTrajectoriesFromServer(this,this.getApplicationContext()).execute(mail,password);
 
 
         /*ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, values);
+                android.R.layout.simple_list_item_1, android.R.id.text1);
 
         listTraj.setAdapter(adapter);*/
 
@@ -39,7 +39,7 @@ public class TrajectoriesActivity extends ListActivity {
                                     int position, long id) {
 
                 // ListView Clicked item value
-                String itemValue = (String) listTraj.getItemAtPosition(position);
+                String itemValue = (String) getListView().getItemAtPosition(position);
                 Toast.makeText(getApplicationContext(),"oi fatty " + itemValue,Toast.LENGTH_LONG).show();
             }
         });

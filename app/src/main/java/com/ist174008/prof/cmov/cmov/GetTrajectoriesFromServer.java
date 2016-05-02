@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
+
 import org.json.JSONObject;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -17,12 +19,12 @@ import java.net.Socket;
 public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String[]> {
 
     private static final String TAG = "GetTraj";
-    private View rootView;
+    private TrajectoriesActivity trajActv;
     private Context mContext;
     private String[] str; // POSSIVEL FODA COM O STRING[] ou STRING
 
-    public GetTrajectoriesFromServer(View v,Context cont) {
-        this.rootView=v;
+    public GetTrajectoriesFromServer(TrajectoriesActivity activity,Context cont) {
+        this.trajActv=activity;
         this.mContext=cont;
     }
 
@@ -70,10 +72,10 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String[]>
 
     @Override
     protected void onPostExecute(String[] result) {
+        ListView list = trajActv.getListView();
         ArrayAdapter<String> adapter = new ArrayAdapter<>(mContext,android.R.layout.simple_list_item_1,android.R.id.text1,result);
-        ListView listTra = (ListView) rootView.findViewById(R.id.listViewTraj);
 
-        listTra.setAdapter(adapter);
+        list.setAdapter(adapter);
 
         adapter.addAll(result);
     }

@@ -1,6 +1,7 @@
 package com.ist174008.prof.cmov.cmov;
 
 
+
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -19,6 +20,10 @@ import android.view.View;
 
 public  class HomeActivity extends AppCompatActivity implements LocationListener {
 
+
+    public static final String TAG = "peerscanner";
+
+
     Location actualLocation;
 
     @Override
@@ -26,6 +31,7 @@ public  class HomeActivity extends AppCompatActivity implements LocationListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_home);
         guiSetButtonListeners();
+
         // Setup Location manager and receiver
         LocationManager lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -51,7 +57,7 @@ public  class HomeActivity extends AppCompatActivity implements LocationListener
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, BookBikeActivity.class);
-                intent.putExtra("Location", actualLocation.toString());
+                intent.putExtra("Location", actualLocation);
 
                 startActivity(intent);
 

@@ -20,9 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-/**
- * Created by ist174008 on 21/03/2016.
- */
+
 public class BookBikeActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private  List<LatLng> finalStations = new ArrayList<>();
@@ -56,8 +54,6 @@ public class BookBikeActivity extends FragmentActivity implements OnMapReadyCall
         }
 
         ((Global) this.getApplication()).setStations(finalStations);
-
-
     }
 
     public LatLng getCurrentLocation(){
