@@ -1,5 +1,6 @@
 package com.ist174008.prof.cmov.cmov;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,9 +19,9 @@ import android.widget.Toast;
 
 public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
 
-    private HomeActivity mActivity;
+    private Activity mActivity;
 
-    public SimWifiP2pBroadcastReceiver(HomeActivity activity) {
+    public SimWifiP2pBroadcastReceiver(Activity activity) {
         super();
         this.mActivity = activity;
     }

@@ -32,8 +32,6 @@ public class BookBikeActivity extends FragmentActivity implements OnMapReadyCall
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
     }
 
     public LatLng getCurrentLocation(){
@@ -52,7 +50,6 @@ public class BookBikeActivity extends FragmentActivity implements OnMapReadyCall
         }
         return null;
     }
-
 
     @Override
     public void onMapReady(GoogleMap map) {
@@ -88,8 +85,6 @@ public class BookBikeActivity extends FragmentActivity implements OnMapReadyCall
         mMap.setOnInfoWindowClickListener(this);
     }
 
-
-
     @Override
     public void onInfoWindowClick(Marker marker) {
 
@@ -98,7 +93,7 @@ public class BookBikeActivity extends FragmentActivity implements OnMapReadyCall
             startActivity(intent);
         }
         if(marker.getTitle().equals("Station 2")) {
-            Intent intent = new Intent(getApplicationContext(), Station2Activity.class); // CHANGE INTENT!!!!
+            Intent intent = new Intent(getApplicationContext(), Station2Activity.class);
             startActivity(intent);
         }
     }
