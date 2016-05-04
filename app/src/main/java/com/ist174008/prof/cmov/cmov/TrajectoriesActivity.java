@@ -3,6 +3,7 @@ package com.ist174008.prof.cmov.cmov;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -24,13 +25,14 @@ public class TrajectoriesActivity extends ListActivity {
         String mail = ((Global) this.getApplication()).getUser();
         String password = ((Global) this.getApplication()).getPassword();
 
-        new GetTrajectoriesFromServer(this,this.getApplicationContext()).execute(mail,password);
-
-
-        /*ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1);
 
-        listTraj.setAdapter(adapter);*/
+        listTraj.setAdapter(adapter);
+
+
+
+        new GetTrajectoriesFromServer(this).execute(mail, password);
 
         listTraj.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 

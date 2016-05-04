@@ -4,7 +4,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -19,13 +21,12 @@ import java.net.Socket;
 public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String[]> {
 
     private static final String TAG = "GetTraj";
+
     private TrajectoriesActivity trajActv;
-    private Context mContext;
     private String[] str; // POSSIVEL FODA COM O STRING[] ou STRING
 
-    public GetTrajectoriesFromServer(TrajectoriesActivity activity,Context cont) {
+    public GetTrajectoriesFromServer(TrajectoriesActivity activity) {
         this.trajActv=activity;
-        this.mContext=cont;
     }
 
     @Override
@@ -73,10 +74,23 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String[]>
     @Override
     protected void onPostExecute(String[] result) {
         ListView list = trajActv.getListView();
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(mContext,android.R.layout.simple_list_item_1,android.R.id.text1,result);
 
-        list.setAdapter(adapter);
 
-        adapter.addAll(result);
+
+        if (result != null) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv,
+                    android.R.layout.simple_list_item_1, android.R.id.text1);
+
+            list.setAdapter(adapter);
+
+
+        }else{
+            String[] val = {"No Trajetories in server"};
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv.getApplicationContext(),android.R.layout.simple_list_item_1,val);
+            list.setAdapter(adapter);
+
+            adapter.addAll(val);
+
+        }
     }
 }
