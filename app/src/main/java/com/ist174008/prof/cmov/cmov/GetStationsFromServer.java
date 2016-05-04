@@ -16,13 +16,13 @@ import java.util.List;
 public class GetStationsFromServer extends AsyncTask<String, Void, List<Double>> {
 
     private static final String TAG = "GetStations";
-    private BookBikeActivity activity;
+    private HomeActivity activity;
     private List<String> name = new ArrayList<>();
     private List<Double> longitude = new ArrayList<>();
     private List<Double> latitude = new ArrayList<>();
     private List<String> bike = new ArrayList<>();
 
-    public GetStationsFromServer(BookBikeActivity act) {
+    public GetStationsFromServer(HomeActivity act) {
         this.activity=act;
     }
 

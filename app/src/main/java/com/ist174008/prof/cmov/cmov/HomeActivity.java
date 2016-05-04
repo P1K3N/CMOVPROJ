@@ -23,6 +23,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
 import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
 import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
@@ -35,6 +40,9 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
     private SimWifiP2pManager.Channel mChannel = null;
     private boolean mBound = false;
     private SimWifiP2pBroadcastReceiver mReceiver;
+
+    private  List<LatLng> finalStations = new ArrayList<>();
+    private int numberOfStations;
 
     public static final String TAG = "peerscanner";
 
@@ -81,7 +89,28 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         }
         lManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, this);
 
+        new GetStationsFromServer(this).execute();
+    }
 
+
+
+
+    public void setStations(List<Double> stations){
+        int listSize = stations.size();
+        numberOfStations = listSize/2;
+
+        List<Double> stationsLat;
+        List<Double> stationsLong;
+
+        stationsLat = new ArrayList<>(stations.subList(0,(listSize/2)));
+        stationsLong = new ArrayList<>(stations.subList((listSize/2),listSize));
+
+
+        for (int i = 0 ; i < numberOfStations; i++) {
+            finalStations.add(new LatLng(stationsLat.get(i), stationsLong.get(i)));
+        }
+
+        ((Global) this.getApplication()).setStations(finalStations);
     }
 
     /*
@@ -150,9 +179,9 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, BookBikeActivity.class);
                 intent.putExtra("Location", actualLocation);
+                intent.putExtra("NumberOfStations",numberOfStations);
 
                 startActivity(intent);
-
             }
         };
 

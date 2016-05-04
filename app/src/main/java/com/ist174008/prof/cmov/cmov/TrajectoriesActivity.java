@@ -25,12 +25,6 @@ public class TrajectoriesActivity extends ListActivity {
         String mail = ((Global) this.getApplication()).getUser();
         String password = ((Global) this.getApplication()).getPassword();
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1);
-
-        listTraj.setAdapter(adapter);
-
-
 
         new GetTrajectoriesFromServer(this).execute(mail, password);
 
@@ -42,7 +36,7 @@ public class TrajectoriesActivity extends ListActivity {
 
                 // ListView Clicked item value
                 String itemValue = (String) getListView().getItemAtPosition(position);
-                Toast.makeText(getApplicationContext(),"oi fatty " + itemValue,Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"" + itemValue,Toast.LENGTH_LONG).show();
             }
         });
     }

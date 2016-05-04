@@ -21,11 +21,9 @@ import java.util.List;
 
 
 
-public class BookBikeActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+public class BookBikeActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
-    private  List<LatLng> finalStations = new ArrayList<>();
-    private int numberOfStations;
-
+    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,25 +33,7 @@ public class BookBikeActivity extends FragmentActivity implements OnMapReadyCall
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        new GetStationsFromServer(this).execute();
-    }
 
-    public void setStations(List<Double>  stations){
-        int listSize = stations.size();
-        numberOfStations = listSize/2;
-
-        List<Double> stationsLat;
-        List<Double> stationsLong;
-
-        stationsLat = new ArrayList<>(stations.subList(0,(listSize/2)));
-        stationsLong = new ArrayList<>(stations.subList((listSize/2),listSize));
-
-
-        for (int i = 0 ; i < numberOfStations; i++) {
-            finalStations.add(new LatLng(stationsLat.get(i), stationsLong.get(i)));
-        }
-
-        ((Global) this.getApplication()).setStations(finalStations);
     }
 
     public LatLng getCurrentLocation(){
@@ -77,6 +57,8 @@ public class BookBikeActivity extends FragmentActivity implements OnMapReadyCall
     @Override
     public void onMapReady(GoogleMap map) {
 
+        mMap=map;
+
         try {
             map.setMyLocationEnabled(true);
         }catch(SecurityException e) {
@@ -85,36 +67,40 @@ public class BookBikeActivity extends FragmentActivity implements OnMapReadyCall
 
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(getCurrentLocation(), 2));
 
-
         List<LatLng>  stationList = ((Global) this.getApplication()).getStations();
+        Toast.makeText(getApplicationContext(),"stations for marker" + stationList,Toast.LENGTH_LONG).show();
+
+
+        Intent intent = getIntent();
+        int numberOfStations = (int) intent.getExtras().get("NumberOfStations");
+
         for (int i = 0 ; i < numberOfStations; i++){
 
             map.addMarker(new MarkerOptions()
-                    .title("Station " + i)
+                    .title("Station " + (i+1))
                     .position(stationList.get(i)));
         }
 
         map.addMarker(new MarkerOptions()
                 .title("You are HERE")
                 .position(getCurrentLocation()));
+
+        mMap.setOnInfoWindowClickListener(this);
     }
 
+
+
     @Override
-    public boolean onMarkerClick(Marker marker){
+    public void onInfoWindowClick(Marker marker) {
+
         if(marker.getTitle().equals("Station 1")) {
-            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+            Intent intent = new Intent(getApplicationContext(), Station1Activity.class);
             startActivity(intent);
         }
         if(marker.getTitle().equals("Station 2")) {
-            Intent intent = new Intent(getApplicationContext(), InfoActivity.class); // CHANGE INTENT!!!!
+            Intent intent = new Intent(getApplicationContext(), Station2Activity.class); // CHANGE INTENT!!!!
             startActivity(intent);
         }
-        if(marker.getTitle().equals("Station 3")) {
-            Intent intent = new Intent(getApplicationContext(), SocialActivity.class);
-            startActivity(intent);
-        }
-
-        return true;
     }
 }
 

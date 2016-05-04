@@ -70,6 +70,14 @@
             android:name=".MessageActivity">
 
         </activity>
+        <activity
+            android:name=".Station1Activity">
+
+        </activity>
+        <activity
+            android:name=".Station2Activity">
+
+        </activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

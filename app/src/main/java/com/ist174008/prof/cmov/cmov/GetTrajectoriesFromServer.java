@@ -75,21 +75,17 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String[]>
     protected void onPostExecute(String[] result) {
         ListView list = trajActv.getListView();
 
-
-
         if (result != null) {
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv,
-                    android.R.layout.simple_list_item_1, android.R.id.text1);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv.getApplicationContext(),
+                    android.R.layout.simple_list_item_1, android.R.id.text1,result);
 
             list.setAdapter(adapter);
-
 
         }else{
-            String[] val = {"No Trajetories in server"};
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv.getApplicationContext(),android.R.layout.simple_list_item_1,val);
-            list.setAdapter(adapter);
+            String[] val = {"No trajectories to show"};
 
-            adapter.addAll(val);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv.getApplicationContext(),R.layout.list_black_text,R.id.list_content,val);
+            list.setAdapter(adapter);
 
         }
     }
