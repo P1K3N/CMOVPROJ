@@ -2,6 +2,7 @@ package com.ist174008.prof.cmov.cmov;
 
 
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -46,10 +47,28 @@ public class MessageActivity extends AppCompatActivity implements SimWifiP2pMana
     private SimWifiP2pSocket mCliSocket = null;
     private boolean mBound = false;
     private SimWifiP2pBroadcastReceiver mReceiver;
+    private BroadcastReceiver receiver;
+    private IntentFilter  filter;
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(mReceiver);
+        unregisterReceiver(receiver);
+
+        try{
+            mCliSocket.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     protected void onResume() {
         super.onResume();
+        registerReceiver(receiver, filter);
     }
 
     @Override
@@ -57,6 +76,7 @@ public class MessageActivity extends AppCompatActivity implements SimWifiP2pMana
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_message);
         guiSetButtonListeners();
+
         // register broadcast receiver
         IntentFilter filter = new IntentFilter();
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
@@ -80,18 +100,10 @@ public class MessageActivity extends AppCompatActivity implements SimWifiP2pMana
         contactName= (TextView) findViewById(R.id.textViewContactName);
         sendPoints = (TextView) findViewById(R.id.textViewPoints);
 
-        getContactName();
+        onMsgReceived();
 
     }
 
-    public void getContactName(){
-        Bundle bundle = getIntent().getExtras();
-        String value = bundle.getString("contact_name");
-
-        contactName.append("Send a Message to " + value);
-        sendPoints.append("Send some points too :)");
-
-    }
 
 
     private OnClickListener btnSendMsg = new OnClickListener() {
@@ -99,38 +111,28 @@ public class MessageActivity extends AppCompatActivity implements SimWifiP2pMana
 
         }
     };
-
-
-    private void guiSetButtonListeners() {
-
-        findViewById(R.id.btnSendMsg).setOnClickListener(btnSendMsg);
-
-    }
-
-
-    public class SendCommTask extends AsyncTask<String, String, Void> {
-
+    private OnClickListener listenerSendButton = new OnClickListener() {
         @Override
-        protected Void doInBackground(String... msg) {
-            try {
-                mCliSocket = new SimWifiP2pSocket(msg[0],
-                        Integer.parseInt(getString(R.string.port)));
-                mCliSocket.getOutputStream().write((msg[0] + "\n").getBytes());
-                BufferedReader sockIn = new BufferedReader(
-                        new InputStreamReader(mCliSocket.getInputStream()));
-                sockIn.readLine();
-                mCliSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+        public void onClick(View v) {
+            findViewById(R.id.idSendButton).setEnabled(false);
+
+            Intent intent = getIntent();
+            String str = (String) intent.getExtras().get("UsefulText");
+            new SendCommTask().executeOnExecutor(
+                    AsyncTask.THREAD_POOL_EXECUTOR,
+                    str);
+        }
+    };
+
+    public void onMsgReceived(){
+        filter = new IntentFilter("com.ist174008.prof.cmov.cmov.MsgReceived");
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String Msg =  intent.getExtras().getString("Msg");
             }
-            mCliSocket = null;
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-
-        }
+        };
+        registerReceiver(receiver, filter);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -175,4 +177,28 @@ public class MessageActivity extends AppCompatActivity implements SimWifiP2pMana
     }
 
 
+    public class SendCommTask extends AsyncTask<String, String, Void> {
+
+        @Override
+        protected Void doInBackground(String... msg) {
+            try {
+                mCliSocket.getOutputStream().write((msg[0] + "\n").getBytes());
+                BufferedReader sockIn = new BufferedReader(
+                        new InputStreamReader(mCliSocket.getInputStream()));
+                sockIn.readLine();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mCliSocket = null;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {}
+    }
+
+    private void guiSetButtonListeners() {
+        findViewById(R.id.idSendButton).setOnClickListener(btnSendMsg);
+    }
 }

@@ -40,11 +40,11 @@
             android:id="@+id/editTextPoints" />
 
         <Button
+            android:id="@+id/idSendButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Send"
-            android:id="@+id/btnSendMsg"
-            android:layout_gravity="center_horizontal" />
+            android:text="@string/sendButton"
+            android:layout_gravity="center"/>
     </LinearLayout>
 
 </LinearLayout>

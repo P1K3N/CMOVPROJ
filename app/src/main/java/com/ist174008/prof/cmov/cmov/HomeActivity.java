@@ -49,7 +49,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
     private SimWifiP2pManager.Channel mChannel = null;
     private Messenger mService = null;
     private SimWifiP2pSocketServer mSrvSocket = null;
-    private SimWifiP2pSocket mCliSocket = null;
     private boolean mBound = false;
     private SimWifiP2pBroadcastReceiver mReceiver;
 
@@ -131,20 +130,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         ((Global) this.getApplication()).setStations(finalStations);
     }
 
-    /*
-	 * Listeners associated to buttons
-	 */
 
-    private View.OnClickListener listenerInRangeButton = new View.OnClickListener() {
-        public void onClick(View v){
-            if (mBound) {
-                mManager.requestPeers(mChannel, HomeActivity.this);
-            } else {
-              Toast .makeText(v.getContext(), "Service not bound",
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
 
     private ServiceConnection mConnection = new ServiceConnection() {
         // callbacks for service binding, passed to bindService()
@@ -170,8 +156,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
 	 * Termite listeners
 	 */
 
-
-
     public class IncommingCommTask extends AsyncTask<Void, String, Void> {
 
         @Override
@@ -196,8 +180,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
                         sock.getOutputStream().write(("\n").getBytes());
                     } catch (IOException e) {
                         Log.d("Error reading socket:", e.getMessage());
-                    } finally {
-                        sock.close();
                     }
                 } catch (IOException e) {
                     Log.d("Error socket:", e.getMessage());
@@ -211,6 +193,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         @Override
         protected void onProgressUpdate(String... values) {
            makeToast(values[0]);
+           sendBroadcastIntent(values[0]);
         }
     }
 
@@ -233,6 +216,14 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
                     }
                 })
                 .show();
+    }
+
+    public void sendBroadcastIntent(String s){
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
+        intent.setAction("com.ist174008.prof.cmov.cmov.MsgReceived");
+        intent.putExtra("Msg", s);
+        sendBroadcast(intent);
     }
 
 
