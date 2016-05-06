@@ -41,6 +41,8 @@ import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
 
+
+
 public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManager.PeerListListener,LocationListener {
 
     private SimWifiP2pManager mManager = null;
@@ -138,7 +140,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
             if (mBound) {
                 mManager.requestPeers(mChannel, HomeActivity.this);
             } else {
-                Toast.makeText(v.getContext(), "Service not bound",
+              Toast .makeText(v.getContext(), "Service not bound",
                         Toast.LENGTH_SHORT).show();
             }
         }
@@ -168,26 +170,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
 	 * Termite listeners
 	 */
 
-    @Override
-    public void onPeersAvailable(SimWifiP2pDeviceList peers) {
-        StringBuilder peersStr = new StringBuilder();
-
-        // compile list of devices in range
-        for (SimWifiP2pDevice device : peers.getDeviceList()) {
-            String devstr = "" + device.deviceName + " (" + device.getVirtIp() + ")\n";
-            peersStr.append(devstr);
-        }
-
-        // display list of devices in range
-        new AlertDialog.Builder(this)
-                .setTitle("Devices in WiFi Range")
-                .setMessage(peersStr.toString())
-                .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .show();
-    }
 
 
     public class IncommingCommTask extends AsyncTask<Void, String, Void> {
@@ -223,56 +205,43 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
                     //e.printStackTrace();
                 }
             }
+
             return null;
+        }
+        @Override
+        protected void onProgressUpdate(String... values) {
+           makeToast(values[0]);
         }
     }
 
-    public class OutgoingCommTask extends AsyncTask<String, Void, String> {
+    @Override
+    public void onPeersAvailable(SimWifiP2pDeviceList peers) {
+        StringBuilder peersStr = new StringBuilder();
 
-        @Override
-        protected void onPreExecute() {}
-
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                mCliSocket = new SimWifiP2pSocket(params[0],
-                        Integer.parseInt(getString(R.string.port)));
-            } catch (UnknownHostException e) {
-                return "Unknown Host:" + e.getMessage();
-            } catch (IOException e) {
-                return "IO error:" + e.getMessage();
-            }
-            return null;
+        // compile list of devices in range
+        for (SimWifiP2pDevice device : peers.getDeviceList()) {
+            String devstr = "" + device.deviceName + " (" + device.getVirtIp() + ")\n";
+            peersStr.append(devstr);
         }
 
-        @Override
-        protected void onPostExecute(String result) {}
+        // display list of devices in range
+        new AlertDialog.Builder(this)
+                .setTitle("Devices in WiFi Range")
+                .setMessage(peersStr.toString())
+                .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .show();
     }
 
-
-    public class SendCommTask extends AsyncTask<String, String, Void> {
-
-        @Override
-        protected Void doInBackground(String... msg) {
-            try {
-                mCliSocket.getOutputStream().write((msg[0] + "\n").getBytes());
-                BufferedReader sockIn = new BufferedReader(
-                        new InputStreamReader(mCliSocket.getInputStream()));
-                sockIn.readLine();
-                mCliSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            mCliSocket = null;
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {}
-    }
 
     /* Button listeners
     */
+
+    private void makeToast(String  values){
+        Toast.makeText(this,values + "\n", Toast.LENGTH_SHORT).show();
+    }
 
     private View.OnClickListener listenerBookBike= new View.OnClickListener() {
             @Override
