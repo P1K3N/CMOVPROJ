@@ -15,11 +15,11 @@ import java.net.Socket;
 /**
  * Created by ist174008 on 13/04/2016.
  */
-public class GetPointsFromServer extends AsyncTask<String, Void, String> {
+public class GetPointsFromServer extends AsyncTask<String, Void, Integer> {
 
     private static final String TAG = "GetPoints";
     private View rootView;
-    private String response;
+    private Integer points;
 
     public GetPointsFromServer(View v){
         this.rootView=v;
@@ -29,7 +29,7 @@ public class GetPointsFromServer extends AsyncTask<String, Void, String> {
     protected void onPreExecute() {}
 
     @Override
-    protected String doInBackground(String... inputString) {
+    protected Integer doInBackground(String... inputString) {
         try {
             Socket socket = new Socket("10.0.2.2", 6000);
 
@@ -39,23 +39,29 @@ public class GetPointsFromServer extends AsyncTask<String, Void, String> {
 
             JSONObject message = new JSONObject();
 
-            message.put("Type", "Show Points");
+            message.put("Type", "User Info");
 
             message.put("Username", inputString[0]);
 
-            message.put("Password", inputString[1]);
-
             outBound.writeObject(message.toString());
 
-            response = (String) inBound.readObject();
+            String response = (String) inBound.readObject();
 
+            if(response == null) {
+                socket.close();
+                throw new SecurityException("Wrong username or password...");
+            }
+
+            message = new JSONObject(response);
+
+            points = message.getInt("Score");
             socket.close();
 
         } catch (Throwable e) {
             Log.v(TAG, "fail" + e.getMessage());
         }
 
-        return response;
+        return points;
 
     }
 
@@ -63,9 +69,15 @@ public class GetPointsFromServer extends AsyncTask<String, Void, String> {
     protected void onProgressUpdate(Void... values) {}
 
     @Override
-    protected void onPostExecute(String result) {
+    protected void onPostExecute(Integer result) {
+        if(result !=null) {
 
-        TextView txt = (TextView) rootView.findViewById(R.id.textPoints);
-        txt.append("You have accumulated " + result + " Points");
+            TextView txt = (TextView) rootView.findViewById(R.id.textPoints);
+            txt.append("You have accumulated " + result + " Points");
+        }else{
+
+            TextView txt = (TextView) rootView.findViewById(R.id.textPoints);
+            txt.append("Could not retrieve points from server");
+        }
     }
 }

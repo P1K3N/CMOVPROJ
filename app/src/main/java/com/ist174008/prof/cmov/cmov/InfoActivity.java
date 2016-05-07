@@ -27,9 +27,8 @@ public class InfoActivity extends AppCompatActivity {
         guiSetButtonListeners();
 
         String userName = ((Global) this.getApplication()).getUser();
-        String pass = ((Global) this.getApplication()).getPassword();
 
-        new GetPointsFromServer(findViewById(android.R.id.content)).execute(userName,pass);
+        new GetPointsFromServer(findViewById(android.R.id.content)).execute(userName);
     }
 
     public void updateTextView(){

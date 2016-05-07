@@ -87,6 +87,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         mReceiver = new SimWifiP2pBroadcastReceiver(this);
         registerReceiver(mReceiver, filter);
 
+        // Wifi ON
         Intent intent = new Intent(getApplicationContext(), SimWifiP2pService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         mBound = true;

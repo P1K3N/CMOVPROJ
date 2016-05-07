@@ -24,6 +24,7 @@ import java.util.List;
 public class BookBikeActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
     private GoogleMap mMap;
+    private  String userName = ((Global) this.getApplication()).getUser();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,11 +90,19 @@ public class BookBikeActivity extends FragmentActivity implements OnMapReadyCall
     public void onInfoWindowClick(Marker marker) {
 
         if(marker.getTitle().equals("Station 1")) {
-            Intent intent = new Intent(getApplicationContext(), Station1Activity.class);
+            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+            Toast.makeText(getApplicationContext(),"Bike Successfully Booked",Toast.LENGTH_SHORT).show();
+
+            new AlertServerBookBike().execute(userName,"Station 1");
+
             startActivity(intent);
         }
         if(marker.getTitle().equals("Station 2")) {
-            Intent intent = new Intent(getApplicationContext(), Station2Activity.class);
+            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+            Toast.makeText(getApplicationContext(),"Bike Successfully Booked",Toast.LENGTH_SHORT).show();
+
+            new AlertServerBookBike().execute(userName, "Station 2");
+
             startActivity(intent);
         }
     }
