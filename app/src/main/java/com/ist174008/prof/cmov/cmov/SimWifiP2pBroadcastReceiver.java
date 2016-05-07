@@ -19,9 +19,9 @@ import android.widget.Toast;
 
 public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
 
-    private Activity mActivity;
+    private SocialActivity mActivity;
 
-    public SimWifiP2pBroadcastReceiver(Activity activity) {
+    public SimWifiP2pBroadcastReceiver(SocialActivity activity) {
         super();
         this.mActivity = activity;
     }

@@ -1,6 +1,7 @@
 package com.ist174008.prof.cmov.cmov;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -14,10 +15,11 @@ import java.net.Socket;
 /**
  * Created by ist174008 on 13/04/2016.
  */
-public class LoginToServer extends AsyncTask<String, Void, String> {
+public class LoginToServer extends AsyncTask<String, Void, Boolean> {
 
     private static final String TAG = "LoginToServer";
     private Context mContext;
+    private boolean response;
 
     public LoginToServer(Context cont){
         this.mContext = cont;
@@ -28,7 +30,7 @@ public class LoginToServer extends AsyncTask<String, Void, String> {
     protected void onPreExecute() {}
 
     @Override
-    protected String doInBackground(String... inputString) {
+    protected Boolean doInBackground(String... inputString) {
         try {
             Socket socket = new Socket("10.0.2.2", 6000);
 
@@ -46,7 +48,7 @@ public class LoginToServer extends AsyncTask<String, Void, String> {
 
             outBound.writeObject(message.toString());
 
-            boolean response = (boolean) inBound.readObject();
+            response = (boolean) inBound.readObject();
 
             Log.v(TAG, inputString[0]);
             socket.close();
@@ -54,10 +56,10 @@ public class LoginToServer extends AsyncTask<String, Void, String> {
 
         } catch (Throwable e) {
             Log.v(TAG, "fail" + e.getMessage());
-            return "Invalid User/Password Combination";
+            return false;
         }
 
-        return "Welcome bro";
+        return response;
 
     }
 
@@ -65,7 +67,8 @@ public class LoginToServer extends AsyncTask<String, Void, String> {
     protected void onProgressUpdate(Void... values) {}
 
     @Override
-    protected void onPostExecute(String result) {
-        Toast.makeText(mContext,result,Toast.LENGTH_LONG).show();
+    protected void onPostExecute(Boolean result) {
+        /*Intent intent = new Intent();
+        intent.putExtra("LoggedIn", false);*/
     }
 }

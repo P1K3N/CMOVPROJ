@@ -29,6 +29,8 @@ public class LoginActivity extends AppCompatActivity {
         editPassword = (EditText) findViewById(R.id.editTextPassword);
         g = ((Global)getApplicationContext());
 
+
+
     }
 
 
@@ -36,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
         super.onSaveInstanceState(outState, outPersistentState);
         outState.putString("loginInfo",editMail.getText().toString());
-        }
+    }
 
 
     private OnClickListener btnLOGIN2 = new OnClickListener() {
@@ -49,6 +51,9 @@ public class LoginActivity extends AppCompatActivity {
             g.setPassword(password);
 
             new LoginToServer(getApplicationContext()).execute(mail,password);
+
+
+
             Intent intent = new Intent(v.getContext(), HomeActivity.class);
             startActivity(intent);
 
