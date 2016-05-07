@@ -48,7 +48,8 @@ public class MessageActivity extends AppCompatActivity implements SimWifiP2pMana
     private boolean mBound = false;
     private SimWifiP2pBroadcastReceiver mReceiver;
     private BroadcastReceiver receiver;
-    private IntentFilter  filter;
+    private IntentFilter  filterMSG;
+    private IntentFilter filter = new IntentFilter();
 
 
     @Override
@@ -68,7 +69,8 @@ public class MessageActivity extends AppCompatActivity implements SimWifiP2pMana
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(receiver, filter);
+        registerReceiver(receiver, filterMSG);
+        registerReceiver(mReceiver, filter);
     }
 
     @Override
@@ -78,7 +80,7 @@ public class MessageActivity extends AppCompatActivity implements SimWifiP2pMana
         guiSetButtonListeners();
 
         // register broadcast receiver
-        IntentFilter filter = new IntentFilter();
+
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
@@ -125,14 +127,14 @@ public class MessageActivity extends AppCompatActivity implements SimWifiP2pMana
     };
 
     public void onMsgReceived(){
-        filter = new IntentFilter("com.ist174008.prof.cmov.cmov.MsgReceived");
+        filterMSG = new IntentFilter("com.ist174008.prof.cmov.cmov.MsgReceived");
         receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String Msg =  intent.getExtras().getString("Msg");
             }
         };
-        registerReceiver(receiver, filter);
+        registerReceiver(receiver, filterMSG);
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -199,6 +201,6 @@ public class MessageActivity extends AppCompatActivity implements SimWifiP2pMana
     }
 
     private void guiSetButtonListeners() {
-        findViewById(R.id.idSendButton).setOnClickListener(btnSendMsg);
+        findViewById(R.id.idSendButton).setOnClickListener(listenerSendButton);
     }
 }

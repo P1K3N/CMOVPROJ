@@ -47,6 +47,24 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
     private SimWifiP2pSocket mCliSocket = null;
     private TextView mTextInput;
     private TextView mTextOutput;
+    private IntentFilter filter = new IntentFilter();
+
+
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(mReceiver);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(mReceiver, filter);
+        guiUpdateInitState();
+    }
 
 
     @Override
@@ -61,7 +79,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         SimWifiP2pSocketManager.Init(getApplicationContext());
 
         // register broadcast receiver
-        IntentFilter filter = new IntentFilter();
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
@@ -102,9 +119,10 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                     AsyncTask.THREAD_POOL_EXECUTOR,
                     mTextInput.getText().toString());
 
-            Intent intent = new Intent();
-            intent.putExtra("UsefulText", mTextInput.getText().toString());
-            startActivity(intent);
+            if(mTextOutput.getText().equals("Success")){
+                Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
+                startActivity(intent);
+            }
         }
     };
 
@@ -174,7 +192,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                 .show();
     }
 
-
     public class OutgoingCommTask extends AsyncTask<String, Void, String> {
 
         @Override
@@ -202,15 +219,12 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                 mTextOutput.setText(result);
             } else {
                 findViewById(R.id.idConnectButton).setEnabled(false);
-                findViewById(R.id.idSendButton).setEnabled(true);
                 mTextInput.setHint("");
                 mTextInput.setText("");
-                mTextOutput.setText("");
+                mTextOutput.setText("Success");
             }
         }
     }
-
-
 
 
     private void guiSetButtonListeners() {
@@ -224,16 +238,15 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
 
         mTextInput = (TextView) findViewById(R.id.editText1);
         mTextInput.setHint("type remote virtual IP (192.168.0.0/16)");
-        mTextInput.setEnabled(false);
+        mTextInput.setEnabled(true);
 
         mTextOutput = (TextView) findViewById(R.id.editText2);
         mTextOutput.setEnabled(false);
         mTextOutput.setText("");
 
-        findViewById(R.id.idConnectButton).setEnabled(false);
-        findViewById(R.id.idSendButton).setEnabled(false);
-        findViewById(R.id.idInRangeButton).setEnabled(false);
-        findViewById(R.id.idInGroupButton).setEnabled(false);
+        findViewById(R.id.idConnectButton).setEnabled(true);
+        findViewById(R.id.idInRangeButton).setEnabled(true);
+        findViewById(R.id.idInGroupButton).setEnabled(true);
     }
 
     private void guiUpdateDisconnectedState() {
@@ -243,7 +256,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         mTextOutput.setEnabled(true);
         mTextOutput.setText("");
 
-        findViewById(R.id.idSendButton).setEnabled(false);
         findViewById(R.id.idConnectButton).setEnabled(true);
         findViewById(R.id.idInRangeButton).setEnabled(true);
         findViewById(R.id.idInGroupButton).setEnabled(true);

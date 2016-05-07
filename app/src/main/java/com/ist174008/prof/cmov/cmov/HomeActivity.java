@@ -51,12 +51,12 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
     private SimWifiP2pSocketServer mSrvSocket = null;
     private boolean mBound = false;
     private SimWifiP2pBroadcastReceiver mReceiver;
+    private IntentFilter filter = new IntentFilter();
 
     private  List<LatLng> finalStations = new ArrayList<>();
     private int numberOfStations;
 
     public static final String TAG = "peerscanner";
-
 
     private Location actualLocation;
 
@@ -66,6 +66,13 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         unregisterReceiver(mReceiver);
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        registerReceiver(mReceiver, filter);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,7 +80,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         guiSetButtonListeners();
 
         // register broadcast receiver
-        IntentFilter filter = new IntentFilter();
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
