@@ -42,9 +42,7 @@ import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager.PeerListListener;
 import pt.inesc.termite.wifidirect.SimWifiP2pManager.GroupInfoListener;
 
-/**
- * Created by ist174008 on 21/03/2016.
- */
+
 public class SocialActivity extends AppCompatActivity implements SimWifiP2pManager.PeerListListener, SimWifiP2pManager.GroupInfoListener {
 
 
@@ -112,16 +110,16 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                 AsyncTask.THREAD_POOL_EXECUTOR);
 
     }*/
-   private OnClickListener listenerInRangeButton = new OnClickListener() {
-       public void onClick(View v){
-           if (mBound) {
-               mManager.requestPeers(mChannel, SocialActivity.this);
-           } else {
-               Toast.makeText(v.getContext(), "Service not bound",
-                       Toast.LENGTH_SHORT).show();
-           }
-       }
-   };
+    private OnClickListener listenerInRangeButton = new OnClickListener() {
+        public void onClick(View v){
+            if (mBound) {
+                mManager.requestPeers(mChannel, SocialActivity.this);
+            } else {
+                Toast.makeText(v.getContext(), "Service not bound",
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    };
     private OnClickListener listenerInGroupButton = new OnClickListener() {
         public void onClick(View v){
             if (mBound) {
@@ -138,9 +136,17 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         @Override
         public void onClick(View v) {
             findViewById(R.id.idConnectButton).setEnabled(false);
+
+            Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
+            intent.putExtra("UsefulText", mTextInput.getText());
+
             new OutgoingCommTask().executeOnExecutor(
                     AsyncTask.THREAD_POOL_EXECUTOR,
                     mTextInput.getText().toString());
+
+            if (mTextOutput.getText().equals("S")) {
+                startActivity(intent);
+            }
         }
     };
 
@@ -221,6 +227,7 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
 
         @Override
         protected void onProgressUpdate(String... values) {
+            sendBroadcastIntent(values[0]);
             mTextOutput.append(values[0] + "\n");
         }
     }
@@ -251,40 +258,17 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                 guiUpdateDisconnectedState();
                 mTextOutput.setText(result);
             } else {
-
                 findViewById(R.id.idConnectButton).setEnabled(false);
-                findViewById(R.id.idSendButton).setEnabled(true);
                 mTextInput.setHint("");
                 mTextInput.setText("");
-                mTextOutput.setText("");
+                mTextOutput.setText("S");
+
+
             }
         }
     }
 
-    public class SendCommTask extends AsyncTask<String, String, Void> {
-
-        @Override
-        protected Void doInBackground(String... msg) {
-            try {
-                mCliSocket.getOutputStream().write((msg[0] + "\n").getBytes());
-                BufferedReader sockIn = new BufferedReader(
-                        new InputStreamReader(mCliSocket.getInputStream()));
-                sockIn.readLine();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            /*mCliSocket = null;*/
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            mTextInput.setText("");
-            guiUpdateDisconnectedState();
-        }
-    }
-/*
+    /*
 	 * Listeners associated to Termite
 	 */
 
@@ -333,8 +317,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                 .show();
     }
 
-
-
     public void sendBroadcastIntent(String s){
         Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
@@ -363,8 +345,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         mTextOutput.setText("");
 
         findViewById(R.id.idConnectButton).setEnabled(false);
-
-        //findViewById(R.id.idSendButton).setEnabled(false);
         findViewById(R.id.WifiOn).setEnabled(true);
 
         findViewById(R.id.idInRangeButton).setEnabled(false);
@@ -378,7 +358,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         mTextOutput.setEnabled(true);
         mTextOutput.setText("");
 
-        //findViewById(R.id.idSendButton).setEnabled(false);
         findViewById(R.id.idConnectButton).setEnabled(true);
 
         findViewById(R.id.WifiOn).setEnabled(false);
