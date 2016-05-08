@@ -62,11 +62,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
     //private IntentFilter filter = new IntentFilter();
 
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        unregisterReceiver(mReceiver);
-    }
 
 
     @Override
@@ -82,6 +77,7 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_social);
 
+
         guiSetButtonListeners();
         guiUpdateInitState();
 
@@ -96,8 +92,17 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
         mReceiver = new SimWifiP2pBroadcastReceiver(this);
         registerReceiver(mReceiver, filter);
+    }
 
-        // Wifi ON
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(mReceiver);
+    }
+
+
+
+    /* private void connectWifiOn(){
         Intent intent = new Intent(getApplicationContext(), SimWifiP2pService.class);
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
         mBound = true;
@@ -106,20 +111,17 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         new IncommingCommTask().executeOnExecutor(
                 AsyncTask.THREAD_POOL_EXECUTOR);
 
-        guiUpdateDisconnectedState();
-    }
-
-    private View.OnClickListener listenerInRangeButton = new View.OnClickListener() {
-        public void onClick(View v){
-            if (mBound) {
-                mManager.requestPeers(mChannel, SocialActivity.this);
-            } else {
-                Toast .makeText(v.getContext(), "Service not bound",
-                        Toast.LENGTH_SHORT).show();
-            }
-        }
-    };
-
+    }*/
+   private OnClickListener listenerInRangeButton = new OnClickListener() {
+       public void onClick(View v){
+           if (mBound) {
+               mManager.requestPeers(mChannel, SocialActivity.this);
+           } else {
+               Toast.makeText(v.getContext(), "Service not bound",
+                       Toast.LENGTH_SHORT).show();
+           }
+       }
+   };
     private OnClickListener listenerInGroupButton = new OnClickListener() {
         public void onClick(View v){
             if (mBound) {
@@ -131,20 +133,33 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         }
     };
 
-    private OnClickListener listenerConnectButton = new View.OnClickListener() {
+
+    private OnClickListener listenerConnectButton = new OnClickListener() {
         @Override
         public void onClick(View v) {
             findViewById(R.id.idConnectButton).setEnabled(false);
             new OutgoingCommTask().executeOnExecutor(
                     AsyncTask.THREAD_POOL_EXECUTOR,
                     mTextInput.getText().toString());
-
-            if(mTextOutput.getText().equals("S")){
-                Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
-                startActivity(intent);
-            }
         }
     };
+
+    private OnClickListener listenerWifiOnButton = new View.OnClickListener(){
+        @Override
+        public void onClick(View v){
+
+            Intent intent = new Intent(v.getContext(), SimWifiP2pService.class);
+            bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+            mBound = true;
+
+            // spawn the chat server background task
+            new IncommingCommTask().executeOnExecutor(
+                    AsyncTask.THREAD_POOL_EXECUTOR);
+
+            guiUpdateDisconnectedState();
+        }
+    };
+
 
     private ServiceConnection mConnection = new ServiceConnection() {
         // callbacks for service binding, passed to bindService()
@@ -166,6 +181,112 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         }
     };
 
+	/*
+	 * Asynctasks implementing message exchange
+	 */
+
+    public class IncommingCommTask extends AsyncTask<Void, String, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            Log.d(TAG, "IncommingCommTask started (" + this.hashCode() + ").");
+
+            try {
+                mSrvSocket = new SimWifiP2pSocketServer(
+                        Integer.parseInt(getString(R.string.port)));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    SimWifiP2pSocket sock = mSrvSocket.accept();
+                    try {
+                        BufferedReader sockIn = new BufferedReader(
+                                new InputStreamReader(sock.getInputStream()));
+                        String st = sockIn.readLine();
+                        publishProgress(st);
+                        sock.getOutputStream().write(("\n").getBytes());
+                    } catch (IOException e) {
+                        Log.d("Error reading socket:", e.getMessage());
+                    }
+                } catch (IOException e) {
+                    Log.d("Error socket:", e.getMessage());
+                    break;
+                    //e.printStackTrace();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            mTextOutput.append(values[0] + "\n");
+        }
+    }
+
+    public class OutgoingCommTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected void onPreExecute() {
+            mTextOutput.setText("Connecting...");
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                mCliSocket = new SimWifiP2pSocket(params[0],
+                        Integer.parseInt(getString(R.string.port)));
+            } catch (UnknownHostException e) {
+                return "Unknown Host:" + e.getMessage();
+            } catch (IOException e) {
+                return "IO error:" + e.getMessage();
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            if (result != null) {
+                guiUpdateDisconnectedState();
+                mTextOutput.setText(result);
+            } else {
+
+                findViewById(R.id.idConnectButton).setEnabled(false);
+                findViewById(R.id.idSendButton).setEnabled(true);
+                mTextInput.setHint("");
+                mTextInput.setText("");
+                mTextOutput.setText("");
+            }
+        }
+    }
+
+    public class SendCommTask extends AsyncTask<String, String, Void> {
+
+        @Override
+        protected Void doInBackground(String... msg) {
+            try {
+                mCliSocket.getOutputStream().write((msg[0] + "\n").getBytes());
+                BufferedReader sockIn = new BufferedReader(
+                        new InputStreamReader(mCliSocket.getInputStream()));
+                sockIn.readLine();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            /*mCliSocket = null;*/
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            mTextInput.setText("");
+            guiUpdateDisconnectedState();
+        }
+    }
+/*
+	 * Listeners associated to Termite
+	 */
 
     @Override
     public void onPeersAvailable(SimWifiP2pDeviceList peers) {
@@ -214,87 +335,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
 
 
 
-    public class IncommingCommTask extends AsyncTask<Void, String, Void> {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            Log.d(TAG, "IncommingCommTask started (" + this.hashCode() + ").");
-
-            try {
-                mSrvSocket = new SimWifiP2pSocketServer(
-                        Integer.parseInt(getString(R.string.port)));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-                    SimWifiP2pSocket sock = mSrvSocket.accept();
-                    try {
-                        BufferedReader sockIn = new BufferedReader(
-                                new InputStreamReader(sock.getInputStream()));
-                        String st = sockIn.readLine();
-                        publishProgress(st);
-                        sock.getOutputStream().write(("\n").getBytes());
-                    } catch (IOException e) {
-                        Log.d("Error reading socket:", e.getMessage());
-                    }
-                } catch (IOException e) {
-                    Log.d("Error socket:", e.getMessage());
-                    break;
-                    //e.printStackTrace();
-                }
-            }
-
-            return null;
-        }
-        @Override
-        protected void onProgressUpdate(String... values) {
-            makeToast(values[0]);
-            sendBroadcastIntent(values[0]);
-        }
-    }
-
-    public void makeToast(String s){
-        Toast.makeText(getApplicationContext(),"o " + s,Toast.LENGTH_SHORT).show();
-    }
-
-
-    public class OutgoingCommTask extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected void onPreExecute() {
-            mTextOutput.setText("Connecting...");
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            try {
-                mCliSocket = new SimWifiP2pSocket(params[0],
-                        Integer.parseInt(getString(R.string.port)));
-            } catch (UnknownHostException e) {
-                return "Unknown Host:" + e.getMessage();
-            } catch (IOException e) {
-                return "IO error:" + e.getMessage();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            if (result != null) {
-                guiUpdateDisconnectedState();
-                mTextOutput.setText(result);
-            } else {
-                findViewById(R.id.idConnectButton).setEnabled(false);
-                mTextInput.setHint("");
-                mTextInput.setText("");
-                mTextOutput.setText("S");
-            }
-        }
-    }
-
-
     public void sendBroadcastIntent(String s){
         Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
@@ -309,21 +349,26 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         findViewById(R.id.idConnectButton).setOnClickListener(listenerConnectButton);
         findViewById(R.id.idInRangeButton).setOnClickListener(listenerInRangeButton);
         findViewById(R.id.idInGroupButton).setOnClickListener(listenerInGroupButton);
+        findViewById(R.id.WifiOn).setOnClickListener(listenerWifiOnButton);
     }
 
     private void guiUpdateInitState() {
 
         mTextInput = (TextView) findViewById(R.id.editText1);
         mTextInput.setHint("type remote virtual IP (192.168.0.0/16)");
-        mTextInput.setEnabled(true);
+        mTextInput.setEnabled(false);
 
         mTextOutput = (TextView) findViewById(R.id.editText2);
         mTextOutput.setEnabled(false);
         mTextOutput.setText("");
 
-        findViewById(R.id.idConnectButton).setEnabled(true);
-        findViewById(R.id.idInRangeButton).setEnabled(true);
-        findViewById(R.id.idInGroupButton).setEnabled(true);
+        findViewById(R.id.idConnectButton).setEnabled(false);
+
+        //findViewById(R.id.idSendButton).setEnabled(false);
+        findViewById(R.id.WifiOn).setEnabled(true);
+
+        findViewById(R.id.idInRangeButton).setEnabled(false);
+        findViewById(R.id.idInGroupButton).setEnabled(false);
     }
 
     private void guiUpdateDisconnectedState() {
@@ -333,7 +378,10 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         mTextOutput.setEnabled(true);
         mTextOutput.setText("");
 
+        //findViewById(R.id.idSendButton).setEnabled(false);
         findViewById(R.id.idConnectButton).setEnabled(true);
+
+        findViewById(R.id.WifiOn).setEnabled(false);
         findViewById(R.id.idInRangeButton).setEnabled(true);
         findViewById(R.id.idInGroupButton).setEnabled(true);
     }

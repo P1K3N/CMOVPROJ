@@ -103,6 +103,7 @@ public  class HomeActivity extends AppCompatActivity implements LocationListener
         };
 
 
+
     public void onSocial(View view) {
         Intent intent = new Intent(this, SocialActivity.class);
         startActivity(intent);
