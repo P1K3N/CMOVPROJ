@@ -8,6 +8,10 @@
 
     <uses-permission  android:name="android.permission.MAPS_RECEIVE"/>
 
+    <permission
+        android:name="com.ist174008.prof.cmov.cmov.permission.ACCESS_FINE_LOCATION"
+        android:protectionLevel="signature"/>
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -58,24 +62,11 @@
         </activity>
 
         <activity
-            android:name=".SetupActivity">
-
-        </activity>
-
-        <activity
             android:name=".SocialActivity">
 
         </activity>
         <activity
             android:name=".MessageActivity">
-
-        </activity>
-        <activity
-            android:name=".Station1Activity">
-
-        </activity>
-        <activity
-            android:name=".Station2Activity">
 
         </activity>
 

@@ -31,7 +31,7 @@ public class GetPointsFromServer extends AsyncTask<String, Void, Integer> {
     @Override
     protected Integer doInBackground(String... inputString) {
         try {
-            Socket socket = new Socket("10.0.2.2", 6000);
+            Socket socket = new Socket("192.168.1.80", 6000);
 
             ObjectOutputStream outBound = new ObjectOutputStream(socket.getOutputStream());
 

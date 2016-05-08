@@ -144,7 +144,7 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                     AsyncTask.THREAD_POOL_EXECUTOR,
                     mTextInput.getText().toString());
 
-            if (mTextOutput.getText().equals("S")) {
+            if (mTextOutput.getText().toString().equals("S")) {
                 startActivity(intent);
             }
         }
@@ -262,8 +262,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                 mTextInput.setHint("");
                 mTextInput.setText("");
                 mTextOutput.setText("S");
-
-
             }
         }
     }

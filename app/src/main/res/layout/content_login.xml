@@ -16,7 +16,7 @@
         android:inputType="textEmailAddress"
         android:ems="10"
         android:id="@+id/editTextEmail"
-        android:hint="example@tecnico.ulisboa.pt"
+        android:hint="@string/exampleUser"
         android:layout_above="@+id/textViewPassword"
         android:layout_centerHorizontal="true" />
 
@@ -33,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Enter Password"
+        android:text="@string/passwordLogin"
         android:id="@+id/textViewPassword"
         android:layout_centerVertical="true"
         android:layout_alignLeft="@+id/editTextPassword"
@@ -43,7 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Enter E-mail"
+        android:text="@string/username"
         android:id="@+id/textViewEmail"
         android:layout_alignBottom="@+id/editTextEmail"
         android:layout_alignLeft="@+id/editTextEmail"
@@ -54,9 +54,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="LOGIN"
-        android:id="@+id/btnLOGIN2"
+        android:id="@+id/btnLOGIN"
+        android:layout_marginTop="49dp"
         android:layout_below="@+id/editTextPassword"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp" />
+        android:layout_alignLeft="@+id/editTextPassword"
+        android:layout_alignStart="@+id/editTextPassword" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Register"
+        android:id="@+id/buttonRegister"
+        android:layout_toRightOf="@+id/textViewPassword"
+        android:layout_alignRight="@+id/editTextPassword"
+        android:layout_alignEnd="@+id/editTextPassword"
+        android:layout_alignBottom="@+id/btnLOGIN"
+        android:layout_alignTop="@+id/btnLOGIN" />
 
 </RelativeLayout>

@@ -40,6 +40,15 @@ public  class HomeActivity extends AppCompatActivity implements LocationListener
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        startActivity(intent);
+    }
+
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_home);
@@ -89,8 +98,6 @@ public  class HomeActivity extends AppCompatActivity implements LocationListener
 
     /* Button listeners
     */
-
-
     private View.OnClickListener listenerBookBike= new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,6 +134,7 @@ public  class HomeActivity extends AppCompatActivity implements LocationListener
         actualLocation=location;
         Log.d("GPS", "Location Changed " + location.toString());
     }
+
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {

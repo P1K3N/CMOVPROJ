@@ -26,7 +26,7 @@ public class AlertServerBookBike extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... inputString) {
         try {
-            Socket socket = new Socket("10.0.2.2", 6000);
+            Socket socket = new Socket("192.168.1.80", 6000);//10.0.0.2
 
             ObjectOutputStream outBound = new ObjectOutputStream(socket.getOutputStream());
 
