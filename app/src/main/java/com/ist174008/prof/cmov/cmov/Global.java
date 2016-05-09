@@ -14,8 +14,17 @@ public class Global extends Application {
 
     private String user;
     private String password;
-    private int points;
+    private float points;
+    private LatLng myLoc;
     private List<LatLng> stations = new ArrayList<>();
+
+    public LatLng getMyLoc() {
+        return myLoc;
+    }
+
+    public void setMyLoc(LatLng myLoc) {
+        this.myLoc = myLoc;
+    }
 
     public List<LatLng> getStations() {
         return stations;
@@ -25,12 +34,16 @@ public class Global extends Application {
         this.stations = stations;
     }
 
-    public int getPoints() {
+    public float getPoints() {
         return points;
     }
 
-    public void setPoints(int points) {
+    public void setPoints(float points) {
         this.points = points;
+    }
+
+    public void addPoints(float points) {
+        this.points += points;
     }
 
     public String getUser() {

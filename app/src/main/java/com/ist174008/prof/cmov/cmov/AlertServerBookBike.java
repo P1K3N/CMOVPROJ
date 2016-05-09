@@ -40,17 +40,6 @@ public class AlertServerBookBike extends AsyncTask<String, Void, String> {
 
             outBound.writeObject(message.toString());
 
-            String response = (String) inBound.readObject();
-
-            message = new JSONObject(response);
-
-            boolean ack = (boolean) inBound.readObject();
-
-            if(!ack) {
-                socket.close();
-                Log.v(TAG, "fail");
-            }
-
             socket.close();
 
         } catch (Throwable e) {

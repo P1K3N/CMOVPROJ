@@ -191,10 +191,12 @@ public class BookBikeActivity extends FragmentActivity
                 mLastLocation.getLongitude(),
                 location.getLatitude(),
                 location.getLongitude(),
-                distance);
+                distance);*/
 
+        float  points=mLastLocation.distanceTo(location);
 
-        Toast.makeText(getApplicationContext(),"DISTANCE22: " + distance,Toast.LENGTH_LONG).show();*/
+        ((Global) this.getApplication()).addPoints(points);
+        Toast.makeText(getApplicationContext(),"DISTANCE22: " + points,Toast.LENGTH_LONG).show();
 
         mLastLocation = location;
         if (mCurrLocationMarker != null) {
@@ -208,8 +210,12 @@ public class BookBikeActivity extends FragmentActivity
                 .position(latLng));
 
         //move map camera
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,4));
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 4));
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(4));
+
+        LatLng thisLoc = new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude());
+
+        ((Global) this.getApplication()).setMyLoc(thisLoc);
 
         //stop location updates
         if (mGoogleApiClient != null) {
