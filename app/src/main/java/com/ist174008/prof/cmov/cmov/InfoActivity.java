@@ -28,11 +28,8 @@ public class InfoActivity extends AppCompatActivity {
 
         String userName = ((Global) this.getApplication()).getUser();
 
-        new GetPointsFromServer(findViewById(android.R.id.content)).execute(userName);
-    }
+        new GetPointsFromServer(this).execute(userName);
 
-    public void updateTextView(){
-       // userPoints.append("You have accumulated" + points + " Points");
     }
 
     private OnClickListener btnToTraj = new OnClickListener() {

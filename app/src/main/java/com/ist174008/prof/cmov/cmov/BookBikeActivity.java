@@ -193,7 +193,7 @@ public class BookBikeActivity extends FragmentActivity
                 location.getLongitude(),
                 distance);*/
 
-        float  points=mLastLocation.distanceTo(location);
+        float points=mLastLocation.distanceTo(location);
 
         ((Global) this.getApplication()).addPoints(points);
         Toast.makeText(getApplicationContext(),"DISTANCE22: " + points,Toast.LENGTH_LONG).show();

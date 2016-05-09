@@ -247,7 +247,7 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                 mTextOutput.setText(result);
             } else {
                 Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
-                intent.putExtra("tt", mTextInput.getText());
+                intent.putExtra("tt", mTextInput.getText().toString());
 
                 mTextOutput.setText("");
 

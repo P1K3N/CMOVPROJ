@@ -36,7 +36,7 @@ public class SendPointsToServer extends AsyncTask<String, Void, String> {
 
             message.put("Username", inputString[0]);
 
-            message.put("Password", inputString[1]);
+            message.put("Points",inputString[1]);
 
             outBound.writeObject(message.toString());
 

@@ -57,7 +57,9 @@ public  class HomeActivity extends AppCompatActivity {
         new GetStationsFromServer(this).execute();
         String userName = ((Global) this.getApplication()).getUser();
 
-        new SendTrajectoriesToServer().execute(userName,"3");
+        new SendTrajectoriesToServer().execute(userName,"3"); // sitio errado
+        //new GetPointsFromServer(this).execute(userName);
+        //new SendPointsToServer().execute(userName);
 
     }
 

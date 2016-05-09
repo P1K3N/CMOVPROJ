@@ -40,6 +40,8 @@ public class AlertServerBookBike extends AsyncTask<String, Void, String> {
 
             outBound.writeObject(message.toString());
 
+            //boolean response = (boolean) inBound.readObject(); POSSIVEL FODA
+
             socket.close();
 
         } catch (Throwable e) {

@@ -1,5 +1,6 @@
 package com.ist174008.prof.cmov.cmov;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -18,11 +19,11 @@ import java.net.Socket;
 public class GetPointsFromServer extends AsyncTask<String, Void, Integer> {
 
     private static final String TAG = "GetPoints";
-    private View rootView;
+    private Activity act;
     private Integer points;
 
-    public GetPointsFromServer(View v){
-        this.rootView=v;
+    public GetPointsFromServer(Activity v){
+        this.act=v;
     }
 
     @Override
@@ -72,11 +73,12 @@ public class GetPointsFromServer extends AsyncTask<String, Void, Integer> {
     protected void onPostExecute(Integer result) {
         if(result !=null) {
 
-            TextView txt = (TextView) rootView.findViewById(R.id.textPoints);
+            TextView txt = (TextView) act.findViewById(R.id.textPoints);
             txt.append("You have accumulated " + result + " Points");
+            ((Global) act.getApplication()).setPoints(result);
         }else{
 
-            TextView txt = (TextView) rootView.findViewById(R.id.textPoints);
+            TextView txt = (TextView) act.findViewById(R.id.textPoints);
             txt.append("Could not retrieve points from server");
         }
     }
