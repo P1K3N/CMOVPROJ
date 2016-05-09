@@ -57,6 +57,7 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
     private TextView mTextInput;
     private TextView mTextOutput;
     private SimWifiP2pBroadcastReceiver mReceiver;
+    private boolean correctIP=false;
     //private IntentFilter filter = new IntentFilter();
 
 
@@ -144,7 +145,7 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                     AsyncTask.THREAD_POOL_EXECUTOR,
                     mTextInput.getText().toString());
 
-            if (mTextOutput.getText().toString().equals("S")) {
+            if (correctIP) {
                 startActivity(intent);
             }
         }
@@ -261,7 +262,8 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                 findViewById(R.id.idConnectButton).setEnabled(false);
                 mTextInput.setHint("");
                 mTextInput.setText("");
-                mTextOutput.setText("S");
+                mTextOutput.setText("");
+                correctIP=true;
             }
         }
     }
