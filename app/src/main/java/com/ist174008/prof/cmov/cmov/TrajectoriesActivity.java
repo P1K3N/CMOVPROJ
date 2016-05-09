@@ -11,7 +11,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
+import java.util.ArrayList;
+
 public class TrajectoriesActivity extends ListActivity {
+
+    private ArrayList<LatLng> traj = new ArrayList<>();
 
 
     @Override
@@ -37,8 +43,19 @@ public class TrajectoriesActivity extends ListActivity {
                 // ListView Clicked item value
                 String itemValue = (String) getListView().getItemAtPosition(position);
                 Toast.makeText(getApplicationContext(),"" + itemValue,Toast.LENGTH_LONG).show();
+
+
+
+
             }
         });
+    }
+
+
+    public void setTrajectories(ArrayList<LatLng> trajectories){
+
+
+
     }
 }
 

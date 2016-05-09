@@ -6,7 +6,7 @@
     android:name="com.ist174008.prof.cmov.cmov.permission.MAPS_RECEIVE"
     android:protectionLevel="signature"/>
 
-    <uses-permission  android:name="android.permission.MAPS_RECEIVE"/>
+    <uses-permission android:name="android.permission.MAPS_RECEIVE"/>
 
     <permission
         android:name="com.ist174008.prof.cmov.cmov.permission.ACCESS_FINE_LOCATION"

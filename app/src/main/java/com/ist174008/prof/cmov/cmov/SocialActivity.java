@@ -57,10 +57,7 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
     private TextView mTextInput;
     private TextView mTextOutput;
     private SimWifiP2pBroadcastReceiver mReceiver;
-    private boolean correctIP=false;
     //private IntentFilter filter = new IntentFilter();
-
-
 
 
     @Override
@@ -69,7 +66,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         //registerReceiver(mReceiver, filter);
         guiUpdateInitState();
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -98,8 +94,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         super.onPause();
         unregisterReceiver(mReceiver);
     }
-
-
 
     /* private void connectWifiOn(){
         Intent intent = new Intent(getApplicationContext(), SimWifiP2pService.class);
@@ -132,22 +126,16 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         }
     };
 
-
     private OnClickListener listenerConnectButton = new OnClickListener() {
         @Override
         public void onClick(View v) {
             findViewById(R.id.idConnectButton).setEnabled(false);
 
-            Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
-            intent.putExtra("UsefulText", mTextInput.getText());
-
             new OutgoingCommTask().executeOnExecutor(
                     AsyncTask.THREAD_POOL_EXECUTOR,
                     mTextInput.getText().toString());
 
-            if (correctIP) {
-                startActivity(intent);
-            }
+            Toast.makeText(getApplicationContext(),"mtextInput = " + mTextInput.getText(),Toast.LENGTH_LONG).show();
         }
     };
 
@@ -166,7 +154,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
             guiUpdateDisconnectedState();
         }
     };
-
 
     private ServiceConnection mConnection = new ServiceConnection() {
         // callbacks for service binding, passed to bindService()
@@ -259,11 +246,12 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                 guiUpdateDisconnectedState();
                 mTextOutput.setText(result);
             } else {
-                findViewById(R.id.idConnectButton).setEnabled(false);
-                mTextInput.setHint("");
-                mTextInput.setText("");
+                Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
+                intent.putExtra("tt", mTextInput.getText());
+
                 mTextOutput.setText("");
-                correctIP=true;
+
+                startActivity(intent);
             }
         }
     }
@@ -325,7 +313,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         sendBroadcast(intent);
     }
 
-
     private void guiSetButtonListeners() {
 
         findViewById(R.id.idConnectButton).setOnClickListener(listenerConnectButton);
@@ -365,4 +352,3 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         findViewById(R.id.idInGroupButton).setEnabled(true);
     }
 }
-

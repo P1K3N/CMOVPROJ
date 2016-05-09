@@ -30,13 +30,11 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Toast.makeText(getApplicationContext(),"PAUSED",Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        Toast.makeText(getApplicationContext(),"STOPPED",Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -116,7 +114,7 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(String... inputString) {
             try {
-                Socket socket = new Socket("192.168.1.80", 6000);
+                Socket socket = new Socket("10.0.2.2", 6000);
 
                 ObjectOutputStream outBound = new ObjectOutputStream(socket.getOutputStream());
 

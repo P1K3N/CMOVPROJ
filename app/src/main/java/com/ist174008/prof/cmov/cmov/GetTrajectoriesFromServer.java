@@ -14,16 +14,18 @@ import org.json.JSONObject;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * Created by ist174008 on 13/04/2016.
  */
-public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String[]> {
+public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String> {
 
     private static final String TAG = "GetTraj";
 
     private TrajectoriesActivity trajActv;
-    private String[] str; // POSSIVEL FODA COM O STRING[] ou STRING
+    private String str;
+    private int numberOfTrajectories;
 
     public GetTrajectoriesFromServer(TrajectoriesActivity activity) {
         this.trajActv=activity;
@@ -33,9 +35,9 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String[]>
     protected void onPreExecute() {}
 
     @Override
-    protected String[] doInBackground(String... inputString) {
+    protected String doInBackground(String... inputString) {
         try {
-            Socket socket = new Socket("192.168.1.80", 6000);
+            Socket socket = new Socket("10.0.2.2", 6000);
 
             ObjectOutputStream outBound = new ObjectOutputStream(socket.getOutputStream());
 
@@ -49,13 +51,17 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String[]>
 
             message.put("Password", inputString[1]);
 
-
             outBound.writeObject(message.toString());
 
-            str =  (String[]) inBound.readObject();
+            str =  (String) inBound.readObject();
+
+            //message = new JSONObject(str);
+
+           // int numberOfTrajectories = message.getInt("Number Trajectories");
 
             if(str == null) {
                 socket.close();
+                Log.v(TAG, "Wrong username or password...");
                 throw new SecurityException("Wrong username or password...");
             }
 
@@ -72,21 +78,23 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String[]>
     protected void onProgressUpdate(Void... values) {}
 
     @Override
-    protected void onPostExecute(String[] result) {
+    protected void onPostExecute(String result) {
         ListView list = trajActv.getListView();
+        //this.trajActv.setTrajectories();
 
         if (result != null) {
+            ArrayList<String> listStr = new ArrayList<>();
             ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv.getApplicationContext(),
-                    android.R.layout.simple_list_item_1, android.R.id.text1,result);
+                    android.R.layout.simple_list_item_1, android.R.id.text1,listStr);
 
             list.setAdapter(adapter);
+            adapter.add(result);
 
         }else{
             String[] val = {"No trajectories to show"};
 
             ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv.getApplicationContext(),R.layout.list_black_text,R.id.list_content,val);
             list.setAdapter(adapter);
-
         }
     }
 }

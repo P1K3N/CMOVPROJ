@@ -22,7 +22,7 @@ import java.util.List;
 
 
 
-public  class HomeActivity extends AppCompatActivity implements LocationListener {
+public  class HomeActivity extends AppCompatActivity {
 
     private  List<LatLng> finalStations = new ArrayList<>();
     private int numberOfStations;
@@ -54,26 +54,11 @@ public  class HomeActivity extends AppCompatActivity implements LocationListener
         setContentView(R.layout.content_home);
         guiSetButtonListeners();
 
-        // Setup Location manager and receiver
-        LocationManager lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            requestPermissions(new String[]{
-                    Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.INTERNET
-            },10 );
-            return;
-        }
-        lManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 100, 1, this);
-
         new GetStationsFromServer(this).execute();
+        String userName = ((Global) this.getApplication()).getUser();
+
+        new SendTrajectoriesToServer().execute(userName,"3");
+
     }
 
 
@@ -109,8 +94,6 @@ public  class HomeActivity extends AppCompatActivity implements LocationListener
             }
         };
 
-
-
     public void onSocial(View view) {
         Intent intent = new Intent(this, SocialActivity.class);
         startActivity(intent);
@@ -129,7 +112,7 @@ public  class HomeActivity extends AppCompatActivity implements LocationListener
 
     }
 
-    @Override
+    /*@Override
     public void onLocationChanged(Location location) {
         actualLocation=location;
         Log.d("GPS", "Location Changed " + location.toString());
@@ -149,7 +132,7 @@ public  class HomeActivity extends AppCompatActivity implements LocationListener
     @Override
     public void onProviderDisabled(String provider) {
 
-    }
+    }*/
 
     private void guiSetButtonListeners(){
         findViewById(R.id.buttonBookBike).setOnClickListener(listenerBookBike);

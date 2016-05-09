@@ -1,8 +1,11 @@
 package com.ist174008.prof.cmov.cmov;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -11,6 +14,7 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
 import com.google.android.gms.location.LocationRequest;
+
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -24,6 +28,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.List;
 
@@ -34,6 +40,9 @@ public class BookBikeActivity extends FragmentActivity
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
+
+
+    private static final String TAG = "BookBike";
 
     private GoogleMap mGoogleMap;
     private  String userName;
@@ -58,8 +67,16 @@ public class BookBikeActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_book_bike);
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkLocationPermission();
+        // Setup Location manager and receiver
+        LocationManager lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            requestPermissions(new String[]{
+                    android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.INTERNET
+            },10 );
+            return;
         }
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -67,23 +84,6 @@ public class BookBikeActivity extends FragmentActivity
 
 
     }
-
-    public LatLng getCurrentLocation(){
-        Intent intent = getIntent();
-        Location location = (Location) intent.getExtras().get("Location");
-
-        if(location !=null) {
-            double currentLat = location.getLatitude();
-            double currentLong = location.getLongitude();
-
-            LatLng currentPos = new LatLng(currentLat,currentLong);
-
-            Log.d("CurrentLocation", location.toString());
-            return currentPos;
-        }
-        return null;
-    }
-
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -100,20 +100,12 @@ public class BookBikeActivity extends FragmentActivity
 
         mGoogleMap=map;
 
-        //Initialize Google Play Services
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                buildGoogleApiClient();
-                mGoogleMap.setMyLocationEnabled(true);
-            }
-        }else {
-            buildGoogleApiClient();
+        buildGoogleApiClient();
+        try {
             mGoogleMap.setMyLocationEnabled(true);
+        }catch (SecurityException e){
+            Toast.makeText(getApplicationContext(),"Permission denied?",Toast.LENGTH_SHORT).show();
         }
-
-        //map.moveCamera(CameraUpdateFactory.newLatLngZoom(getCurrentLocation(), 4));
 
         List<LatLng>  stationList = ((Global) this.getApplication()).getStations();
         Toast.makeText(getApplicationContext(),"stations for marker" + stationList,Toast.LENGTH_LONG).show();
@@ -124,14 +116,21 @@ public class BookBikeActivity extends FragmentActivity
 
         for (int i = 0 ; i < numberOfStations; i++){
 
-            map.addMarker(new MarkerOptions()
+           mGoogleMap.addMarker(new MarkerOptions()
                     .title("Station " + (i+1))
                     .position(stationList.get(i)));
         }
 
-       /* map.addMarker(new MarkerOptions()
-                .title("You are HERE")
-                .position(getCurrentLocation()));*/
+            mGoogleMap.addPolyline(new PolylineOptions()
+                    .add(new LatLng(37.35, -122.0))
+                    .add(new LatLng(37.45, -122.0))  // North of the previous point, but at the same longitude
+                    .add(new LatLng(37.45, -122.2))  // Same latitude, and 30km to the west
+                    .add(new LatLng(37.35, -122.2))  // Same longitude, and 16km to the south
+                    .add(new LatLng(37.35, -122.0)) // Closes the polyline.
+                    .width(3)
+                    .color(Color.BLUE));
+
+
 
         mGoogleMap.setOnInfoWindowClickListener(this);
     }
@@ -171,13 +170,32 @@ public class BookBikeActivity extends FragmentActivity
         }
     }
     @Override
-    public void onConnectionSuspended(int i) {}
+    public void onConnectionSuspended(int k) {
+        Log.i(TAG, "Connection suspended");
+        mGoogleApiClient.connect();
+    }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {}
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
+    }
 
     @Override
     public void onLocationChanged(Location location) {
+
+       // Toast.makeText(getApplicationContext(),"DISTANCE1111: " + mLastLocation.distanceTo(location),Toast.LENGTH_LONG).show();
+
+        /*float[] distance={0.0f};
+        Location.distanceBetween(
+                mLastLocation.getLatitude(),
+                mLastLocation.getLongitude(),
+                location.getLatitude(),
+                location.getLongitude(),
+                distance);
+
+
+        Toast.makeText(getApplicationContext(),"DISTANCE22: " + distance,Toast.LENGTH_LONG).show();*/
+
         mLastLocation = location;
         if (mCurrLocationMarker != null) {
             mCurrLocationMarker.remove();
@@ -185,14 +203,12 @@ public class BookBikeActivity extends FragmentActivity
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions();
-        markerOptions.position(latLng);
-        markerOptions.title("You are Here");
-        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
-        mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
+        mCurrLocationMarker = mGoogleMap.addMarker(new MarkerOptions()
+                .title("You are Here")
+                .position(latLng));
 
         //move map camera
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,4));
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(4));
 
         //stop location updates
@@ -200,7 +216,6 @@ public class BookBikeActivity extends FragmentActivity
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
     }
-
 
     public void onStatusChanged(String provider, int status, Bundle extras) {
 
@@ -214,73 +229,6 @@ public class BookBikeActivity extends FragmentActivity
 
     public void onProviderDisabled(String provider) {
 
-    }
-
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
-    public boolean checkLocationPermission(){
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)) {
-
-                // Show an expanation to the user *asynchronously* -- don't block
-                // this thread waiting for the user's response! After the user
-                // sees the explanation, try again to request the permission.
-
-                //Prompt the user once explanation has been shown
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        MY_PERMISSIONS_REQUEST_LOCATION);
-            }
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
-                    if (ContextCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-
-                        if (mGoogleApiClient == null) {
-                            buildGoogleApiClient();
-                        }
-                        mGoogleMap.setMyLocationEnabled(true);
-                    }
-
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                    Toast.makeText(this, "permission denied", Toast.LENGTH_LONG).show();
-                }
-
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
     }
 }
 

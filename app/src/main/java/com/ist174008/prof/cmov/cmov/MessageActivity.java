@@ -1,42 +1,27 @@
 package com.ist174008.prof.cmov.cmov;
 
 
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.database.DataSetObserver;
-import android.location.LocationListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.os.Messenger;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.UnknownHostException;
 
-import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
-import pt.inesc.termite.wifidirect.SimWifiP2pDevice;
-import pt.inesc.termite.wifidirect.SimWifiP2pDeviceList;
-import pt.inesc.termite.wifidirect.SimWifiP2pManager;
-import pt.inesc.termite.wifidirect.service.SimWifiP2pService;
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
-import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
 
 
 public class MessageActivity extends AppCompatActivity {
@@ -64,13 +49,11 @@ public class MessageActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
         registerReceiver(receiver, filterMSG);
     }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -92,7 +75,9 @@ public class MessageActivity extends AppCompatActivity {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
 
                     Intent intent = getIntent();
-                    String str = (String) intent.getExtras().get("UsefulText");
+                    String str = (String) intent.getExtras().get("tt");
+
+                    Toast.makeText(getApplicationContext(), "INTENT " + str, Toast.LENGTH_LONG).show();
                     new SendCommTask().executeOnExecutor(
                             AsyncTask.THREAD_POOL_EXECUTOR,
                             str);
@@ -108,7 +93,9 @@ public class MessageActivity extends AppCompatActivity {
                 sendChatMessage();
 
                 Intent intent = getIntent();
-                String str = (String) intent.getExtras().get("UsefulText");
+                String str = (String) intent.getExtras().get("tt");
+
+                Toast.makeText(getApplicationContext(), "INTENT " + str, Toast.LENGTH_LONG).show();
                 new SendCommTask().executeOnExecutor(
                         AsyncTask.THREAD_POOL_EXECUTOR,
                         str);
@@ -151,7 +138,7 @@ public class MessageActivity extends AppCompatActivity {
         registerReceiver(receiver, filterMSG);
     }
 
-    public class SendCommTask extends AsyncTask<String, String, Void> {
+    public class SendCommTask extends AsyncTask<String, Void, Void> {
 
         @Override
         protected Void doInBackground(String... msg) {
@@ -164,7 +151,6 @@ public class MessageActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            mCliSocket = null;
             return null;
         }
 

@@ -24,7 +24,7 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... inputString) {
         try {
-            int j = Integer.parseInt(inputString[2]); // NUMBER OF LOCATIONS OBJECTS TO SEND
+            int j = Integer.parseInt(inputString[1]); // NUMBER OF LOCATIONS OBJECTS TO SEND
 
             Socket socket = new Socket("10.0.2.2", 6000);
 
@@ -37,8 +37,6 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, String> {
             message.put("Type", "New Trajectory");
 
             message.put("Username", inputString[0]);
-
-            message.put("Password", inputString[1]);
 
             message.put("Locations", j);
 
@@ -63,7 +61,6 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, String> {
 
             if(!ack) {
                 socket.close();
-
                 Log.v(TAG, "fail");
             }
 
