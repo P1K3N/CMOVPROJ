@@ -93,7 +93,7 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
     @Override
     public void onPause() {
         super.onPause();
-
+        unregisterReceiver(mReceiver);
     }
 
     @Override
@@ -110,10 +110,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         super.onResume();
 
         registerReceiver(mReceiver, filter);
-        guiUpdateInitState();
-        // spawn the chat server background task
-        new IncommingCommTask().executeOnExecutor(
-                AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     private OnClickListener listenerInRangeButton = new OnClickListener() {
