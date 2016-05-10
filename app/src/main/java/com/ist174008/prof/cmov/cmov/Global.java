@@ -1,6 +1,7 @@
 package com.ist174008.prof.cmov.cmov;
 
 import android.app.Application;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 

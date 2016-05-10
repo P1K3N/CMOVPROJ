@@ -1,6 +1,6 @@
 package com.ist174008.prof.cmov.cmov;
 
-import android.content.Context;
+
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
@@ -10,22 +10,25 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONObject;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-/**
- * Created by ist174008 on 13/04/2016.
- */
-public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String> {
+
+public class GetTrajectoriesFromServer extends AsyncTask<String, Void, List<LatLng>> {
 
     private static final String TAG = "GetTraj";
 
     private TrajectoriesActivity trajActv;
     private String str;
     private int numberOfTrajectories;
+    private List<LatLng> traj = new ArrayList<>();
 
     public GetTrajectoriesFromServer(TrajectoriesActivity activity) {
         this.trajActv=activity;
@@ -35,7 +38,7 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String> {
     protected void onPreExecute() {}
 
     @Override
-    protected String doInBackground(String... inputString) {
+    protected List<LatLng> doInBackground(String... inputString) {
         try {
             Socket socket = new Socket("10.0.2.2", 6000);
 
@@ -49,15 +52,27 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String> {
 
             message.put("Username", inputString[0]);
 
-            message.put("Password", inputString[1]);
-
             outBound.writeObject(message.toString());
 
             str =  (String) inBound.readObject();
 
             //message = new JSONObject(str);
 
-           // int numberOfTrajectories = message.getInt("Number Trajectories");
+            // int numberOfTrajectories = message.getInt("Number Trajectories");
+
+            /*
+            if(numberOfTrajectories == 0){
+                socket.close();
+            }else{
+                for(int i=0; i<numberOfTrajectores;i++){
+
+
+                    LatLng traj(i) = new LatLng(message.getString("Latitude"),message.getString("Longitude"));
+
+                }
+            }
+
+             */
 
             if(str == null) {
                 socket.close();
@@ -71,24 +86,29 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, String> {
             Log.v(TAG, "fail" + e.getMessage());
         }
 
-        return str;
+        return traj;
     }
 
     @Override
     protected void onProgressUpdate(Void... values) {}
 
     @Override
-    protected void onPostExecute(String result) {
+    protected void onPostExecute(List<LatLng> result) {
         ListView list = trajActv.getListView();
         //this.trajActv.setTrajectories();
 
         if (result != null) {
-            ArrayList<String> listStr = new ArrayList<>();
+            ArrayList<String> listStr=new ArrayList<>();
+
+            for(int i=0;i<numberOfTrajectories;i++) {
+                 listStr.add("Trajectory " + i+1);
+            }
+
             ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv.getApplicationContext(),
                     android.R.layout.simple_list_item_1, android.R.id.text1,listStr);
 
             list.setAdapter(adapter);
-            adapter.add(result);
+            //adapter.add(result);
 
         }else{
             String[] val = {"No trajectories to show"};

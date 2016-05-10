@@ -1,7 +1,10 @@
 package com.ist174008.prof.cmov.cmov;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -31,6 +34,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -42,17 +46,32 @@ public class BookBikeActivity extends FragmentActivity
         LocationListener {
 
 
-    private static final String TAG = "BookBike";
+    private static final String TAG = "BookBikeActivity";
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 10;
 
     private GoogleMap mGoogleMap;
-    private  String userName;
+    private String userName;
 
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private Marker mCurrLocationMarker;
+    IntentFilter filter = new IntentFilter();
 
 
+    private BroadcastReceiver updateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+
+            String trajName = intent.getExtras().getString("Trajectory Name");
+            List<LatLng> traj = intent.getExtras().getParcelable("TrajectoriesForMap");
+
+            //updateMap(trajName,traj);
+        }
+    };
+
+    // UNREGISTER POSSIVEL FODA
     @Override
     public void onPause() {
         super.onPause();
@@ -60,6 +79,13 @@ public class BookBikeActivity extends FragmentActivity
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
+        unregisterReceiver(updateReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        registerReceiver(updateReceiver, filter);
     }
 
     @Override
@@ -67,22 +93,24 @@ public class BookBikeActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_book_bike);
 
-        // Setup Location manager and receiver
-        LocationManager lManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkLocationPermission();
+        }
 
-
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        /*if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
             requestPermissions(new String[]{
                     android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.INTERNET
             },10 );
             return;
-        }
+        }*/
+
+        filter = new IntentFilter();
+        filter.addAction("UPDATE_MAP"); // ??
+        registerReceiver(updateReceiver, filter);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-
     }
 
     protected synchronized void buildGoogleApiClient() {
@@ -95,43 +123,45 @@ public class BookBikeActivity extends FragmentActivity
     }
 
 
+    public void updateMap(String trajName, List<LatLng> traj1) {
+
+        for (int i = 0; i < traj1.size() - 1; i++) {
+            LatLng src = traj1.get(i);
+            LatLng dest = traj1.get(i + 1);
+
+
+            mGoogleMap.addPolyline(
+                    new PolylineOptions().add(
+                            new LatLng(src.latitude, src.longitude),
+                            new LatLng(dest.latitude, dest.longitude)
+                    ).width(2).color(Color.BLUE).geodesic(true)
+            );
+        }
+    }
+
     @Override
     public void onMapReady(GoogleMap map) {
 
-        mGoogleMap=map;
+        mGoogleMap = map;
 
         buildGoogleApiClient();
         try {
             mGoogleMap.setMyLocationEnabled(true);
-        }catch (SecurityException e){
-            Toast.makeText(getApplicationContext(),"Permission denied?",Toast.LENGTH_SHORT).show();
+        } catch (SecurityException e) {
+            Toast.makeText(getApplicationContext(), "Permission denied?", Toast.LENGTH_SHORT).show();
         }
 
-        List<LatLng>  stationList = ((Global) this.getApplication()).getStations();
-        Toast.makeText(getApplicationContext(),"stations for marker" + stationList,Toast.LENGTH_LONG).show();
-
+        List<LatLng> stationList = ((Global) this.getApplication()).getStations();
 
         Intent intent = getIntent();
         int numberOfStations = (int) intent.getExtras().get("NumberOfStations");
 
-        for (int i = 0 ; i < numberOfStations; i++){
+        for (int i = 0; i < numberOfStations; i++) {
 
-           mGoogleMap.addMarker(new MarkerOptions()
-                    .title("Station " + (i+1))
+            mGoogleMap.addMarker(new MarkerOptions()
+                    .title("Station " + (i + 1))
                     .position(stationList.get(i)));
         }
-
-            mGoogleMap.addPolyline(new PolylineOptions()
-                    .add(new LatLng(37.35, -122.0))
-                    .add(new LatLng(37.45, -122.0))  // North of the previous point, but at the same longitude
-                    .add(new LatLng(37.45, -122.2))  // Same latitude, and 30km to the west
-                    .add(new LatLng(37.35, -122.2))  // Same longitude, and 16km to the south
-                    .add(new LatLng(37.35, -122.0)) // Closes the polyline.
-                    .width(3)
-                    .color(Color.BLUE));
-
-
-
         mGoogleMap.setOnInfoWindowClickListener(this);
     }
 
@@ -139,17 +169,17 @@ public class BookBikeActivity extends FragmentActivity
     public void onInfoWindowClick(Marker marker) {
         userName = ((Global) this.getApplication()).getUser();
 
-        if(marker.getTitle().equals("Station 1")) {
+        if (marker.getTitle().equals("Station 1")) {
             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-            Toast.makeText(getApplicationContext(),"Bike Successfully Booked",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Bike Successfully Booked", Toast.LENGTH_SHORT).show();
 
-            new AlertServerBookBike().execute(userName,"Station 1");
+            new AlertServerBookBike().execute(userName, "Station 1");
 
             startActivity(intent);
         }
-        if(marker.getTitle().equals("Station 2")) {
+        if (marker.getTitle().equals("Station 2")) {
             Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
-            Toast.makeText(getApplicationContext(),"Bike Successfully Booked",Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Bike Successfully Booked", Toast.LENGTH_SHORT).show();
 
             new AlertServerBookBike().execute(userName, "Station 2");
 
@@ -164,11 +194,13 @@ public class BookBikeActivity extends FragmentActivity
         mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION)
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
         }
+        Log.i(TAG, "IF FALSE nogood " + (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED));
     }
+
     @Override
     public void onConnectionSuspended(int k) {
         Log.i(TAG, "Connection suspended");
@@ -182,21 +214,22 @@ public class BookBikeActivity extends FragmentActivity
 
     @Override
     public void onLocationChanged(Location location) {
+        Log.d(TAG, "Location Changed " + location.toString());
 
-       // Toast.makeText(getApplicationContext(),"DISTANCE1111: " + mLastLocation.distanceTo(location),Toast.LENGTH_LONG).show();
+        if (mLastLocation != null) {
 
-        /*float[] distance={0.0f};
-        Location.distanceBetween(
-                mLastLocation.getLatitude(),
-                mLastLocation.getLongitude(),
-                location.getLatitude(),
-                location.getLongitude(),
-                distance);*/
+            float[] distance = {0.0f};
 
-        float points=mLastLocation.distanceTo(location);
+            Location.distanceBetween(
+                    mLastLocation.getLatitude(),
+                    mLastLocation.getLongitude(),
+                    location.getLatitude(),
+                    location.getLongitude(),
+                    distance);
 
-        ((Global) this.getApplication()).addPoints(points);
-        Toast.makeText(getApplicationContext(),"DISTANCE22: " + points,Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "DISTANCE: " + distance[0], Toast.LENGTH_LONG).show();
+            ((Global) this.getApplication()).addPoints(distance[0] / 1000);
+        }
 
         mLastLocation = location;
         if (mCurrLocationMarker != null) {
@@ -205,21 +238,29 @@ public class BookBikeActivity extends FragmentActivity
 
         //Place current location marker
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-        mCurrLocationMarker = mGoogleMap.addMarker(new MarkerOptions()
-                .title("You are Here")
-                .position(latLng));
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(latLng);
+        markerOptions.title("Current Position");
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
+        mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
 
         //move map camera
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 4));
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(4));
+        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(10));
 
-        LatLng thisLoc = new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude());
+        LatLng thisLoc = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
         ((Global) this.getApplication()).setMyLoc(thisLoc);
 
-        //stop location updates
-        if (mGoogleApiClient != null) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        List<LatLng> stationList = ((Global) this.getApplication()).getStations();
+
+        float[] distance = {0.0f};
+        float[] distance1 = {0.0f};
+        Location.distanceBetween(stationList.get(0).latitude, stationList.get(0).longitude, thisLoc.latitude, thisLoc.longitude, distance);
+        Location.distanceBetween(stationList.get(1).latitude, stationList.get(1).longitude, thisLoc.latitude, thisLoc.longitude, distance1);
+
+        if(distance[0]==0 || distance1[0]==0) {
+            Toast.makeText(getApplicationContext(), "IN STATION WOOW ", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -235,6 +276,72 @@ public class BookBikeActivity extends FragmentActivity
 
     public void onProviderDisabled(String provider) {
 
+    }
+
+    public boolean checkLocationPermission(){
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+                //Prompt the user once explanation has been shown
+                ActivityCompat.requestPermissions(this,
+                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                requestPermissions(new String[]{
+                        android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.INTERNET
+                }, MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    if (ContextCompat.checkSelfPermission(this,
+                            android.Manifest.permission.ACCESS_FINE_LOCATION)
+                            == PackageManager.PERMISSION_GRANTED) {
+
+                        if (mGoogleApiClient == null) {
+                            buildGoogleApiClient();
+                        }
+                        mGoogleMap.setMyLocationEnabled(true);
+                    }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    Toast.makeText(this, "Permission denied, please enable GPS location", Toast.LENGTH_LONG).show();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 }
 

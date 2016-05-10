@@ -8,9 +8,7 @@
 
     <uses-permission android:name="android.permission.MAPS_RECEIVE"/>
 
-    <permission
-        android:name="com.ist174008.prof.cmov.cmov.permission.ACCESS_FINE_LOCATION"
-        android:protectionLevel="signature"/>
+
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -63,7 +61,6 @@
 
         <activity
             android:name=".SocialActivity">
-
         </activity>
         <activity
             android:name=".MessageActivity">
