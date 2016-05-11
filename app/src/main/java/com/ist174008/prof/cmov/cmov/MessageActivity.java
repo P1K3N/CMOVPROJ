@@ -9,7 +9,6 @@ import android.database.DataSetObserver;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AbsListView;
@@ -18,13 +17,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 
 import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
 
@@ -38,40 +33,20 @@ public class MessageActivity extends AppCompatActivity {
     private Button buttonSend;
     private boolean side = true;
     private SimWifiP2pSocket mCliSocket = null;
+
     private IntentFilter  filterMSG;
-
-
-    private  BroadcastReceiver receiver =  new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            Log.d(TAG, "IN RECEIVER!!!");
-
-            String Msg1 = intent.getStringExtra("Msg");
-
-            Toast.makeText(MessageActivity.this, "RECEIVED THE MSG " + Msg1, Toast.LENGTH_SHORT).show();
-            receiveChatMessage(false, Msg1);
-
-            if(action.equals("com.ist174008.prof.cmov.cmov.MsgReceived")) {
-                String Msg2 = intent.getStringExtra("Msg");
-
-                Toast.makeText(MessageActivity.this, "RECEIVED THE MSG " + Msg2, Toast.LENGTH_SHORT).show();
-                receiveChatMessage(false, Msg2);
-            }
-        }
-    };
 
 
     @Override
     public void onPause() {
         super.onPause();
-    }
+        //unregisterReceiver(receiver);
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Toast.makeText(MessageActivity.this, "DESTROYYYYYYED MessageCtvt", Toast.LENGTH_SHORT).show();
-       unregisterReceiver(receiver);
+        try{
+            mCliSocket.close();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -85,8 +60,10 @@ public class MessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_message);
 
+        //onMsgReceived();
         filterMSG = new IntentFilter("com.ist174008.prof.cmov.cmov.MsgReceived");
-        this.registerReceiver(receiver, filterMSG);
+        registerReceiver(receiver, filterMSG);
+
 
         buttonSend = (Button) findViewById(R.id.send);
 
@@ -100,13 +77,12 @@ public class MessageActivity extends AppCompatActivity {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
 
-
-                    Intent intent = getIntent();
-                    String ip = intent.getExtras().getString("IP");
-
+                    Intent intent= getIntent();
+                    String ip= intent.getExtras().getString("IP");
+                    Toast.makeText(getApplicationContext(), "IP" + ip,Toast.LENGTH_LONG).show();
                     new SendCommTask().executeOnExecutor(
                             AsyncTask.THREAD_POOL_EXECUTOR,
-                            ip, chatText.getText().toString());
+                            ip,chatText.getText().toString());
 
                     return sendChatMessage();
                 }
@@ -117,13 +93,17 @@ public class MessageActivity extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
 
-                Intent intent = getIntent();
-                String ip = intent.getExtras().getString("IP");
 
+
+
+                Toast.makeText(getApplicationContext(), "INTENT " +  chatText.getText().toString(), Toast.LENGTH_LONG).show();
+
+                Intent intent= getIntent();
+                String ip= intent.getExtras().getString("IP");
+                Toast.makeText(getApplicationContext(), "IP" + ip,Toast.LENGTH_LONG).show();
                 new SendCommTask().executeOnExecutor(
                         AsyncTask.THREAD_POOL_EXECUTOR,
-                        ip, chatText.getText().toString());
-
+                        ip,chatText.getText().toString());
                 sendChatMessage();
             }
         });
@@ -152,15 +132,43 @@ public class MessageActivity extends AppCompatActivity {
         return true;
     }
 
+   /*public void onMsgReceived(){
+        filterMSG = new IntentFilter("com.ist174008.prof.cmov.cmov.MsgReceived");
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String Msg =  intent.getExtras().getString("Msg");
+                receiveChatMessage(false,Msg);
+                Toast.makeText(getApplicationContext(),"Msg = " + Msg,Toast.LENGTH_LONG).show();
+            }
+        };
+        registerReceiver(receiver, filterMSG);
+
+    }*/
+
+    private  BroadcastReceiver receiver=new BroadcastReceiver(){
+
+        @Override
+        public void onReceive(Context context,Intent intent){
+
+            String action= intent.getAction();
+            if(action.equals("com.ist174008.prof.cmov.cmov.MsgReceived")) {
+                String Msg = intent.getExtras().getString("Msg");
+                receiveChatMessage(false, Msg);
+                Toast.makeText(getApplicationContext(), "Msg = " + Msg, Toast.LENGTH_LONG).show();
+            }
+            //registerReceiver(receiver,filterMSG);
+
+        }
+    };
+
     public class SendCommTask extends AsyncTask<String, Void, Void> {
 
         @Override
         protected Void doInBackground(String... msg) {
-            Log.d(TAG, "SENDCOMMTASK started: " + "send to ip:" +msg[0] + "msg to send:" + msg[1] );
             try {
-                if(mCliSocket == null) {
-                    mCliSocket = new SimWifiP2pSocket(msg[0],
-                            Integer.parseInt(getString(R.string.port)));
+                if(mCliSocket==null) {
+                    mCliSocket = new SimWifiP2pSocket(msg[0], Integer.parseInt(getString(R.string.port)));
                 }
 
                 mCliSocket.getOutputStream().write((msg[1] + "\n").getBytes());
@@ -168,10 +176,8 @@ public class MessageActivity extends AppCompatActivity {
                         new InputStreamReader(mCliSocket.getInputStream()));
                 sockIn.readLine();
 
-            } catch (UnknownHostException e) {
-                Log.d(TAG, "Unknown Host: " + e.getMessage());
             } catch (IOException e) {
-                Log.d(TAG, "IO Error: " + e.getMessage());
+                e.printStackTrace();
             }
             return null;
         }

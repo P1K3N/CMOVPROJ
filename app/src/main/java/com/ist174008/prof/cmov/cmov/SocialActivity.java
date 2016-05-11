@@ -1,7 +1,6 @@
 package com.ist174008.prof.cmov.cmov;
 
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -58,13 +57,21 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
     private TextView mTextInput;
     private TextView mTextOutput;
     private SimWifiP2pBroadcastReceiver mReceiver;
-    private IntentFilter filter = new IntentFilter();
+    //private IntentFilter filter = new IntentFilter();
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //registerReceiver(mReceiver, filter);
+        guiUpdateInitState();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_social);
+
 
         guiSetButtonListeners();
         guiUpdateInitState();
@@ -73,7 +80,7 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         SimWifiP2pSocketManager.Init(getApplicationContext());
 
         // register broadcast receiver
-        filter = new IntentFilter();
+        IntentFilter filter = new IntentFilter();
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_STATE_CHANGED_ACTION);
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_PEERS_CHANGED_ACTION);
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_NETWORK_MEMBERSHIP_CHANGED_ACTION);
@@ -86,32 +93,19 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mReceiver);
-        Toast.makeText(getApplicationContext(), "DESTROY, BYE BRDCST RECVR",
-                Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(),"DESTROYED SOCIAL",Toast.LENGTH_LONG).show();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        unregisterReceiver(mReceiver);
-    }
+    /* private void connectWifiOn(){
+        Intent intent = new Intent(getApplicationContext(), SimWifiP2pService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        mBound = true;
 
-    @Override
-    public void onRestart(){
-        super.onRestart();
-        registerReceiver(mReceiver, filter);
         // spawn the chat server background task
         new IncommingCommTask().executeOnExecutor(
                 AsyncTask.THREAD_POOL_EXECUTOR);
-    }
 
-    @Override
-    public void onResume(){
-        super.onResume();
-
-        registerReceiver(mReceiver, filter);
-    }
-
+    }*/
     private OnClickListener listenerInRangeButton = new OnClickListener() {
         public void onClick(View v){
             if (mBound) {
@@ -138,9 +132,12 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         public void onClick(View v) {
             findViewById(R.id.idConnectButton).setEnabled(false);
 
+
             new OutgoingCommTask().executeOnExecutor(
                     AsyncTask.THREAD_POOL_EXECUTOR,
                     mTextInput.getText().toString());
+
+            Toast.makeText(getApplicationContext(),"mtextInput = " + mTextInput.getText(),Toast.LENGTH_LONG).show();
         }
     };
 
@@ -201,35 +198,29 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                 try {
                     SimWifiP2pSocket sock = mSrvSocket.accept();
                     try {
-                        Log.d(TAG,"TRY 2 ???");
-
                         BufferedReader sockIn = new BufferedReader(
                                 new InputStreamReader(sock.getInputStream()));
 
+
                         String st = sockIn.readLine();
                         publishProgress(st);
-                        sendBroadcastIntent(st);
-
                         sock.getOutputStream().write(("\n").getBytes());
                     } catch (IOException e) {
-                        Log.d(TAG,"Error reading socket:" + e.getMessage());
-
-                    }finally {
-                        mSrvSocket.close();
+                        Log.d("Error reading socket:", e.getMessage());
                     }
-                }catch (IOException e){
-                    Log.d(TAG,"MERDA");
+                } catch (IOException e) {
+                    Log.d("Error socket:", e.getMessage());
+                    break;
+                    //e.printStackTrace();
                 }
             }
-
             return null;
         }
 
         @Override
         protected void onProgressUpdate(String... values) {
-            Log.d(TAG, "IncommingCommTask post " + values[0]);
             sendBroadcastIntent(values[0]);
-            mTextOutput.append(values[0] + "\n");
+            //mTextOutput.append(values[0] + "\n");
         }
     }
 
@@ -259,9 +250,13 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                 guiUpdateDisconnectedState();
                 mTextOutput.setText(result);
             } else {
-                Intent intent = new Intent(getApplicationContext(),MessageActivity.class);
+                Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
+
                 intent.putExtra("IP",mTextInput.getText().toString());
+                //intent.putExtra("tt", mTextInput.getText().toString());
+
                 mTextOutput.setText("");
+
                 startActivity(intent);
             }
         }
@@ -316,13 +311,12 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                 .show();
     }
 
-    public void sendBroadcastIntent(String message){
-        Toast.makeText(SocialActivity.this, "SEND BROADCAST INTENT" + message, Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "IN SENDING BROADCAST INTENT!!!");
+    public void sendBroadcastIntent(String s){
         Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         intent.setAction("com.ist174008.prof.cmov.cmov.MsgReceived");
-        intent.putExtra("Msg", message);
+        intent.putExtra("Msg", s);
+        Toast.makeText(getApplicationContext(),"Msg = " + s,Toast.LENGTH_LONG).show();
         sendBroadcast(intent);
     }
 
@@ -364,4 +358,5 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         findViewById(R.id.idInRangeButton).setEnabled(true);
         findViewById(R.id.idInGroupButton).setEnabled(true);
     }
+
 }
