@@ -5,15 +5,12 @@ package com.ist174008.prof.cmov.cmov;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -41,34 +38,34 @@ public class SocialActivity extends ListActivity {
                     R.layout.list_black_text,R.id.list_content, names);
 
             list.setAdapter(adapter);
-        }else{
+        }else {
             String[] unfortunate = {"No devices near you :("};
             ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(),
-                    R.layout.list_black_text,R.id.list_content, unfortunate);
+                    R.layout.list_black_text, R.id.list_content, unfortunate);
 
             list.setAdapter(adapter);
-
-            list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view,
-                                        int position, long id) {
-                    // ListView Clicked item value
-                    String itemValue = (String) getListView().getItemAtPosition(position);
-                    Log.d(TAG,"CLICKED LIST " + itemValue);
-
-                    Intent intent = new Intent(getApplicationContext(),MessageActivity.class);
-                    intent.putExtra("IP",itemValue);
-                    startActivity(intent);
-                }
-            });
         }
+
+        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                // ListView Clicked item value
+                String itemValue = (String) getListView().getItemAtPosition(position);
+                Log.d(TAG,"CLICKED LIST " + itemValue);
+
+                Intent intent = new Intent(getApplicationContext(),MessageActivity.class);
+                intent.putExtra("IP",itemValue);
+                startActivity(intent);
+            }
+        });
     }
+
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Toast.makeText(getApplicationContext(), "DESTROY, BYE BRDCST RECVR",
+        Toast.makeText(getApplicationContext(), "DESTROY, BYE ",
                 Toast.LENGTH_SHORT).show();
     }
 
