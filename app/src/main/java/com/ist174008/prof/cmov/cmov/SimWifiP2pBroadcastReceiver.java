@@ -3,6 +3,7 @@ package com.ist174008.prof.cmov.cmov;
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
 import pt.inesc.termite.wifidirect.SimWifiP2pInfo;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -10,9 +11,9 @@ import android.widget.Toast;
 
 public class SimWifiP2pBroadcastReceiver extends BroadcastReceiver {
 
-    private SocialActivity mActivity;
+    private Activity mActivity;
 
-    public SimWifiP2pBroadcastReceiver(SocialActivity activity) {
+    public SimWifiP2pBroadcastReceiver(Activity activity) {
         super();
         this.mActivity = activity;
     }
