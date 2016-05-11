@@ -175,10 +175,12 @@ public class MessageActivity extends AppCompatActivity {
                 BufferedReader sockIn = new BufferedReader(
                         new InputStreamReader(mCliSocket.getInputStream()));
                 sockIn.readLine();
+                mCliSocket.close();
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            mCliSocket = null;
             return null;
         }
 
