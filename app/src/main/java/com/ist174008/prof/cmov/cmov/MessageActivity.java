@@ -44,12 +44,6 @@ public class MessageActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRestart(){
-        super.onRestart();
-        registerReceiver(receiver, filterMSG);
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
         registerReceiver(receiver, filterMSG);
@@ -60,7 +54,6 @@ public class MessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_message);
 
-        //onMsgReceived();
         filterMSG = new IntentFilter("com.ist174008.prof.cmov.cmov.MsgReceived");
         registerReceiver(receiver, filterMSG);
 
@@ -79,7 +72,7 @@ public class MessageActivity extends AppCompatActivity {
 
                     Intent intent= getIntent();
                     String ip= intent.getExtras().getString("IP");
-                    Toast.makeText(getApplicationContext(), "IP" + ip,Toast.LENGTH_LONG).show();
+
                     new SendCommTask().executeOnExecutor(
                             AsyncTask.THREAD_POOL_EXECUTOR,
                             ip,chatText.getText().toString());
@@ -93,12 +86,9 @@ public class MessageActivity extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
 
-
-                Toast.makeText(getApplicationContext(), "INTENT " +  chatText.getText().toString(), Toast.LENGTH_LONG).show();
-
                 Intent intent= getIntent();
                 String ip= intent.getExtras().getString("IP");
-                Toast.makeText(getApplicationContext(), "IP" + ip,Toast.LENGTH_LONG).show();
+
                 new SendCommTask().executeOnExecutor(
                         AsyncTask.THREAD_POOL_EXECUTOR,
                         ip,chatText.getText().toString());
@@ -130,20 +120,6 @@ public class MessageActivity extends AppCompatActivity {
         return true;
     }
 
-   /*public void onMsgReceived(){
-        filterMSG = new IntentFilter("com.ist174008.prof.cmov.cmov.MsgReceived");
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String Msg =  intent.getExtras().getString("Msg");
-                receiveChatMessage(false,Msg);
-                Toast.makeText(getApplicationContext(),"Msg = " + Msg,Toast.LENGTH_LONG).show();
-            }
-        };
-        registerReceiver(receiver, filterMSG);
-
-    }*/
-
     private  BroadcastReceiver receiver=new BroadcastReceiver(){
 
         @Override
@@ -154,10 +130,7 @@ public class MessageActivity extends AppCompatActivity {
             if(action.equals("com.ist174008.prof.cmov.cmov.MsgReceived")) {
                 String Msg = intent.getExtras().getString("Msg");
                 receiveChatMessage(false, Msg);
-                Log.d(TAG, "INSIDE ON RECEIVE! " + Msg);
-                Toast.makeText(getApplicationContext(), "Msg = " + Msg, Toast.LENGTH_LONG).show();
             }
-
         }
     };
 

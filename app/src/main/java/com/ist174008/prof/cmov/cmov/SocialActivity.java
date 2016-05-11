@@ -51,6 +51,7 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
     private boolean mBound = false;
     private SimWifiP2pSocketServer mSrvSocket = null;
     private SimWifiP2pSocket mCliSocket = null;
+    private SimWifiP2pSocket sock =null;
     private TextView mTextInput;
     private TextView mTextOutput;
     private SimWifiP2pBroadcastReceiver mReceiver;
@@ -81,7 +82,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(mReceiver);
         Toast.makeText(getApplicationContext(), "DESTROY, BYE BRDCST RECVR",
                 Toast.LENGTH_SHORT).show();
     }
@@ -92,16 +92,10 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
         unregisterReceiver(mReceiver);
     }
 
-    @Override
-    public void onRestart(){
-        super.onRestart();
-        registerReceiver(mReceiver, filter);
-    }
 
     @Override
     public void onResume(){
         super.onResume();
-
         registerReceiver(mReceiver, filter);
 
     }
@@ -193,18 +187,17 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
             }
             while (!Thread.currentThread().isInterrupted()) {
                 try {
-                    SimWifiP2pSocket sock = mSrvSocket.accept();
+                    Log.d(TAG,"sock incommingTask " + mSrvSocket);
+                    sock = mSrvSocket.accept();
                     try {
-                        Log.d(TAG,"INSIDE TRY !!");
+                        Log.d(TAG, "INSIDE TRY !!");
 
-                        CommunicationThread commThread = new CommunicationThread(sock);
+                        CommunicationThread commThread = new CommunicationThread();
                         new Thread(commThread).start();
 
                         sock.getOutputStream().write(("\n").getBytes());
                     } catch (IOException e) {
                         Log.d(TAG,"Error reading socket:");
-                    } finally {
-                        sock.close();
                     }
                 } catch (IOException e) {
                     Log.d(TAG,"ERROR IO EXCEPTION" + e.getMessage());
@@ -220,34 +213,19 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
 
     public class CommunicationThread implements Runnable {
 
-        private SimWifiP2pSocket clientSocket;
         private BufferedReader input;
 
-        public CommunicationThread(SimWifiP2pSocket clientSocket) {
-            this.clientSocket = clientSocket;
-
+        public void run() {
             try {
+                Log.d(TAG,"sock thread " + sock);
+                this.input = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
-                this.input = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
+                String st = input.readLine();
+                sendBroadcastIntent(st);
 
             } catch (IOException e) {
-                Log.d(TAG,"ERROR IO EXCEPTION 2" + e.getMessage());
+                Log.d(TAG,"ERROR IO EXCEPTION 3 " + e.getMessage());
                 e.printStackTrace();
-            }
-        }
-        public void run() {
-
-            while (!Thread.currentThread().isInterrupted()) {
-                try {
-
-                    String st = input.readLine();
-
-                    sendBroadcastIntent(st);
-
-                } catch (IOException e) {
-                    Log.d(TAG,"ERROR IO EXCEPTION 3" + e.getMessage());
-                    e.printStackTrace();
-                }
             }
         }
     }
@@ -336,7 +314,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
     }
 
     public void sendBroadcastIntent(String message){
-        Toast.makeText(SocialActivity.this, "SEND BROADCAST INTENT" + message, Toast.LENGTH_SHORT).show();
         Log.d(TAG, "IN SENDING BROADCAST INTENT!!!");
         Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);

@@ -60,6 +60,9 @@ public  class HomeActivity extends AppCompatActivity {
         //new GetPointsFromServer(this).execute(userName);
         //new SendPointsToServer().execute(userName, points); // (int) points then to string
 
+
+
+
     }
 
     public void setStations(List<Double> stations){
