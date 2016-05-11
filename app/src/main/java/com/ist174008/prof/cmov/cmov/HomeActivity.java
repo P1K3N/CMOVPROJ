@@ -8,6 +8,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.Toast;
+
 import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,12 @@ public  class HomeActivity extends AppCompatActivity {
         super.onPause();
     }
 
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Toast.makeText(HomeActivity.this, "DESTORYED HOME ACTIVITY", Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     public void onResume() {

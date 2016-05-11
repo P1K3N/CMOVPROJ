@@ -9,6 +9,7 @@ import android.database.DataSetObserver;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.AbsListView;
@@ -33,20 +34,19 @@ public class MessageActivity extends AppCompatActivity {
     private Button buttonSend;
     private boolean side = true;
     private SimWifiP2pSocket mCliSocket = null;
-
     private IntentFilter  filterMSG;
 
 
     @Override
     public void onPause() {
         super.onPause();
-        //unregisterReceiver(receiver);
+        unregisterReceiver(receiver);
+    }
 
-        try{
-            mCliSocket.close();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
+    @Override
+    public void onRestart(){
+        super.onRestart();
+        registerReceiver(receiver, filterMSG);
     }
 
     @Override
@@ -92,8 +92,6 @@ public class MessageActivity extends AppCompatActivity {
         buttonSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
-
-
 
 
                 Toast.makeText(getApplicationContext(), "INTENT " +  chatText.getText().toString(), Toast.LENGTH_LONG).show();
@@ -150,14 +148,15 @@ public class MessageActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context,Intent intent){
+            Log.d(TAG,"INSIDE ON RECEIVE!");
 
             String action= intent.getAction();
             if(action.equals("com.ist174008.prof.cmov.cmov.MsgReceived")) {
                 String Msg = intent.getExtras().getString("Msg");
                 receiveChatMessage(false, Msg);
+                Log.d(TAG, "INSIDE ON RECEIVE! " + Msg);
                 Toast.makeText(getApplicationContext(), "Msg = " + Msg, Toast.LENGTH_LONG).show();
             }
-            //registerReceiver(receiver,filterMSG);
 
         }
     };
@@ -170,7 +169,6 @@ public class MessageActivity extends AppCompatActivity {
                 if(mCliSocket==null) {
                     mCliSocket = new SimWifiP2pSocket(msg[0], Integer.parseInt(getString(R.string.port)));
                 }
-
                 mCliSocket.getOutputStream().write((msg[1] + "\n").getBytes());
                 BufferedReader sockIn = new BufferedReader(
                         new InputStreamReader(mCliSocket.getInputStream()));

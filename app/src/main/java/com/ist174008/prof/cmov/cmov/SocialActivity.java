@@ -196,13 +196,10 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                     SimWifiP2pSocket sock = mSrvSocket.accept();
                     try {
                         Log.d(TAG,"INSIDE TRY !!");
-                        BufferedReader sockIn = new BufferedReader(
-                                new InputStreamReader(sock.getInputStream()));
 
-                        String st = sockIn.readLine();
+                        CommunicationThread commThread = new CommunicationThread(sock);
+                        new Thread(commThread).start();
 
-                        publishProgress(st);
-                        sendBroadcastIntent(st);
                         sock.getOutputStream().write(("\n").getBytes());
                     } catch (IOException e) {
                         Log.d(TAG,"Error reading socket:");
@@ -210,19 +207,48 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
                         sock.close();
                     }
                 } catch (IOException e) {
-                    Log.d(TAG,"ERROR IO EXCEPTION");
+                    Log.d(TAG,"ERROR IO EXCEPTION" + e.getMessage());
                     break;
-                    //e.printStackTrace();
                 }
             }
             return null;
         }
 
         @Override
-        protected void onProgressUpdate(String... values) {
-            Log.d(TAG, "IncommingCommTask post " + values[0]);
-            sendBroadcastIntent(values[0]);
-            mTextOutput.append(values[0] + "\n");
+        protected void onProgressUpdate(String... values) {}
+    }
+
+    public class CommunicationThread implements Runnable {
+
+        private SimWifiP2pSocket clientSocket;
+        private BufferedReader input;
+
+        public CommunicationThread(SimWifiP2pSocket clientSocket) {
+            this.clientSocket = clientSocket;
+
+            try {
+
+                this.input = new BufferedReader(new InputStreamReader(this.clientSocket.getInputStream()));
+
+            } catch (IOException e) {
+                Log.d(TAG,"ERROR IO EXCEPTION 2" + e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        public void run() {
+
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+
+                    String st = input.readLine();
+
+                    sendBroadcastIntent(st);
+
+                } catch (IOException e) {
+                    Log.d(TAG,"ERROR IO EXCEPTION 3" + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
