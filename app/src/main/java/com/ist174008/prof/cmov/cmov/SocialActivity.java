@@ -96,9 +96,6 @@ public class SocialActivity extends AppCompatActivity implements SimWifiP2pManag
     public void onRestart(){
         super.onRestart();
         registerReceiver(mReceiver, filter);
-        // spawn the chat server background task
-        new IncommingCommTask().executeOnExecutor(
-                AsyncTask.THREAD_POOL_EXECUTOR);
     }
 
     @Override
