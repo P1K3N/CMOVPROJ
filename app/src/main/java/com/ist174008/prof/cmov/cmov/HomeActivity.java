@@ -92,6 +92,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
 
         new GetStationsFromServer(this).execute();
         String userName = ((Global) this.getApplication()).getUser();
+        ((Global) this.getApplication()).setPoints(10.0f);
 
         new SendTrajectoriesToServer().execute(userName,"3"); // sitio errado
         //new GetPointsFromServer(this).execute(userName);
@@ -198,6 +199,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
                 String st = input.readLine();
                 sendBroadcastIntent(st);
 
+
             } catch (IOException e) {
                 Log.d(TAG,"ERROR IO EXCEPTION 3 " + e.getMessage());
                 e.printStackTrace();
@@ -254,9 +256,22 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         intent.setAction("com.ist174008.prof.cmov.cmov.MsgReceived");
         intent.putExtra("Msg", message);
-        sendBroadcast(intent);
-    }
+        if(message.toString().startsWith("Points:")) {
+            String[] Points =message.toString().split(":");
+            String numberOfPoints= Points[1];
+            Float numberOfPointsF= Float.parseFloat(numberOfPoints);
+            updatePoints(numberOfPointsF);
 
+
+        }
+        sendBroadcast(intent);
+
+    }
+    public void updatePoints(float newPoints){
+        ((Global) this.getApplication()).addPoints(newPoints);
+        Toast.makeText(HomeActivity.this, "You have received " + newPoints + "Points" , Toast.LENGTH_SHORT).show();
+
+    }
 
     private ServiceConnection mConnection = new ServiceConnection() {
         // callbacks for service binding, passed to bindService()
