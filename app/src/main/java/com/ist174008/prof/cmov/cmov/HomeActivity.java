@@ -269,7 +269,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
     }
     public void updatePoints(double newPoints){
         ((Global) this.getApplication()).addPoints(newPoints);
-        Toast.makeText(HomeActivity.this, "You have received " + newPoints + "Points" , Toast.LENGTH_SHORT).show();
+        //Toast.makeText(HomeActivity.this, "You have received " + newPoints + "Points" , Toast.LENGTH_SHORT).show();
 
     }
 
