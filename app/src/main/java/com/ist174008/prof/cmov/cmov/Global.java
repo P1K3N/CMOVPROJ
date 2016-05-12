@@ -36,6 +36,14 @@ public class Global extends Application {
         this.trajectories = trajectories;
     }
 
+    public void addTrajectories(ArrayList<LatLng> courses) {
+        this.trajectories.add(courses);
+    }
+
+    public int getNumberOfTrajectories(){
+        return this.trajectories.size();
+    }
+
     public boolean isBiking() {
         return biking;
     }
@@ -123,6 +131,9 @@ public class Global extends Application {
     }
 
     public void setPoints(double points) {
+        if(points < 0){
+            this.points=0;
+        }
         this.points = points;
     }
 

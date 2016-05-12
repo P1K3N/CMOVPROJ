@@ -60,7 +60,7 @@ public class BookBikeActivity extends FragmentActivity
     private Marker mCurrLocationMarker;
     IntentFilter filter = new IntentFilter();
     private boolean biking =false;
-    private List<LatLng> newTrajectory = new ArrayList<>();
+    private ArrayList<LatLng> newCourse = new ArrayList<>();
 
 
     @Override
@@ -223,13 +223,27 @@ public class BookBikeActivity extends FragmentActivity
 
 
         if (mLastLocation != null) {
+            if(biking) {
+                newCourse.add(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
+                Log.d(TAG, "Adding courses in IF");
 
-            if(biking){
-                //new CreateTrajectory(mLastLocation).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                newTrajectory.add(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
-                // When does trajectory start or stop?
-                Log.d(TAG, "Adding to trajectories");
+            }else {
+                if(!newCourse.isEmpty()) {
+                    ((Global) this.getApplication()).addTrajectories(newCourse);
+                    newCourse.clear();
+                }
             }
+
+
+            /*new Thread(new Runnable() {
+                public void run() {
+                    while (biking) {
+                        newCourse.add(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
+                        Log.d(TAG, "Adding courses in WHILE");
+                    }
+                }
+            }).start();
+        }*/
 
 
             // TESTE DISTANCE FUNCTION !!!!
@@ -270,7 +284,7 @@ public class BookBikeActivity extends FragmentActivity
         List<LatLng> stationList = ((Global) this.getApplication()).getStations();
 
 
-        // Distance to stations
+        // Distance to stations DISTANCE FUNCTION NOT TESTED !!!!!!!!!!!!!!!!!!!!!!!!
         float[] distanceStation1 = {0.0f};
         float[] distanceStation2 = {0.0f};
         Location.distanceBetween(stationList.get(0).latitude, stationList.get(0).longitude, thisLoc.latitude, thisLoc.longitude, distanceStation1);
@@ -355,9 +369,14 @@ public class BookBikeActivity extends FragmentActivity
                 ((Global) this.getApplication()).setPickedBike(false);
                 ((Global) this.getApplication()).setBiking(false);
             }
-
             Log.d(TAG, "Drop off bike");
         }
+
+        Integer nOfTrajs= ((Global) this.getApplication()).getNumberOfTrajectories();
+        new SendTrajectoriesToServer().executeOnExecutor(
+                AsyncTask.THREAD_POOL_EXECUTOR,
+                userName,
+                nOfTrajs.toString());
     }
 
    /* public class CreateTrajectory extends AsyncTask<String, Void, String> {
