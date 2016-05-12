@@ -2,21 +2,46 @@ package com.ist174008.prof.cmov.cmov;
 
 import android.app.Application;
 import android.widget.Toast;
-
 import com.google.android.gms.maps.model.LatLng;
-
 import java.util.ArrayList;
 import java.util.List;
+import pt.inesc.termite.wifidirect.SimWifiP2pManager;
 
-/**
- * Created by ist174008 on 14/04/2016.
- */
+
 public class Global extends Application {
 
     private String user;
     private String password;
     private float points;
     private LatLng myLoc;
+    private SimWifiP2pManager manager=null;
+    private SimWifiP2pManager.Channel channel=null;
+    private boolean userNearBike=false;
+
+    public boolean isUserNearBike() {
+        return userNearBike;
+    }
+
+    public void setUserNearBike(boolean userNearBike) {
+        this.userNearBike = userNearBike;
+    }
+
+    public SimWifiP2pManager.Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(SimWifiP2pManager.Channel channel) {
+        this.channel = channel;
+    }
+
+    public SimWifiP2pManager getManager() {
+        return manager;
+    }
+
+    public void setManager(SimWifiP2pManager mManager) {
+        this.manager = mManager;
+    }
+
     private List<LatLng> stations = new ArrayList<>();
 
     public LatLng getMyLoc() {
@@ -54,7 +79,6 @@ public class Global extends Application {
     public void setUser(String u) {
         this.user = u;
     }
-
 
     public String getPassword() {
         return password;

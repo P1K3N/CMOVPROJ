@@ -27,6 +27,7 @@ import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
 
 public class MessageActivity extends AppCompatActivity {
     private static final String TAG = "ChatActivity";
+    private static final String ACTION_MSGREC = "com.ist174008.prof.cmov.cmov.MsgReceived";
 
     private ChatArrayAdapter chatArrayAdapter;
     private ListView listView;
@@ -54,7 +55,7 @@ public class MessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_message);
 
-        filterMSG = new IntentFilter("com.ist174008.prof.cmov.cmov.MsgReceived");
+        filterMSG = new IntentFilter(ACTION_MSGREC);
         registerReceiver(receiver, filterMSG);
 
 
@@ -127,7 +128,7 @@ public class MessageActivity extends AppCompatActivity {
             Log.d(TAG,"INSIDE ON RECEIVE!");
 
             String action= intent.getAction();
-            if(action.equals("com.ist174008.prof.cmov.cmov.MsgReceived")) {
+            if(action.equals(ACTION_MSGREC)) {
                 String Msg = intent.getExtras().getString("Msg");
                 receiveChatMessage(false, Msg);
             }

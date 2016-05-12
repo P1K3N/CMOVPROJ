@@ -259,9 +259,26 @@ public class BookBikeActivity extends FragmentActivity
         Location.distanceBetween(stationList.get(0).latitude, stationList.get(0).longitude, thisLoc.latitude, thisLoc.longitude, distance);
         Location.distanceBetween(stationList.get(1).latitude, stationList.get(1).longitude, thisLoc.latitude, thisLoc.longitude, distance1);
 
-        if(distance[0]==0 || distance1[0]==0) {
-            Toast.makeText(getApplicationContext(), "IN STATION WOOW ", Toast.LENGTH_SHORT).show();
+
+        boolean nearBike = ((Global) this.getApplication()).isUserNearBike();
+
+        if(nearBike) {
+            Toast.makeText(getApplicationContext(), "IS NEAR BIKE OMG ", Toast.LENGTH_SHORT).show();
         }
+
+            /* but is he near station?
+            if (nearBike && nearStation){
+                if(hasBike)
+                    DropOff
+                else
+                    PickUp
+
+            }
+            if(nearBike && !nearStation){
+                    BIKING
+            }
+            }*/
+
     }
 
     public void onStatusChanged(String provider, int status, Bundle extras) {

@@ -26,6 +26,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
@@ -42,8 +43,6 @@ import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocketServer;
 public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManager.PeerListListener, SimWifiP2pManager.GroupInfoListener {
 
     private  List<LatLng> finalStations = new ArrayList<>();
-    private int numberOfStations;
-    private Location actualLocation;
 
     private SimWifiP2pManager mManager = null;
     private SimWifiP2pManager.Channel mChannel = null;
@@ -56,9 +55,11 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
     private SimWifiP2pBroadcastReceiver mReceiver;
     private IntentFilter filter = new IntentFilter();
 
-    private ArrayList<String> listIps= new ArrayList<>();
+    private ArrayList<String> listInGroup= new ArrayList<>();
+    private ArrayList<String> listInRange=new ArrayList<>();
 
     public static final String TAG = "HomeActivity";
+    public static final String SERVICE_FOR_REQUEST_PEERS = "com.ist174008.prof.cmov.cmov.Peers";
 
     @Override
     public void onPause() {
@@ -66,10 +67,10 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         unregisterReceiver(mReceiver);
     }
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // stopService()
         Toast.makeText(HomeActivity.this, "DESTORYED HOME ACTIVITY", Toast.LENGTH_SHORT).show();
     }
 
@@ -117,6 +118,15 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         mReceiver = new SimWifiP2pBroadcastReceiver(this);
         registerReceiver(mReceiver, filter);
 
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        /*((Global) this.getApplication()).setChannel(mChannel);
+        ((Global) this.getApplication()).setManager(mManager);
+
+        Intent serviceIntent = new Intent();
+        startService(serviceIntent);*/
+
+        new PeerUpdate(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+
         // spawn the chat server background task
         new IncommingCommTask().executeOnExecutor(
                 AsyncTask.THREAD_POOL_EXECUTOR);
@@ -124,7 +134,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
 
     public void setStations(List<Double> stations){
         int listSize = stations.size();
-        numberOfStations = listSize/2;
+        int numberOfStations = listSize/2;
 
         List<Double> stationsLat;
         List<Double> stationsLong;
@@ -138,6 +148,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         }
 
         ((Global) this.getApplication()).setStations(finalStations);
+
     }
 
     public class IncommingCommTask extends AsyncTask<Void, String, Void> {
@@ -198,6 +209,45 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         }
     }
 
+
+    public class PeerUpdate extends AsyncTask<Void, String, Void> {
+        private HomeActivity activity;
+
+        public PeerUpdate(HomeActivity act) {
+            this.activity=act;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            Log.d(TAG, "Peer Update started");
+
+            new Thread(new Runnable() {
+                public void run() {
+
+                    while (true) {
+                        mManager.requestPeers(mChannel, activity);
+                        mManager.requestGroupInfo(mChannel, activity);
+                        Log.d(TAG, "Peer Updated!!");
+                        try{
+                            Thread.sleep(20000);
+                        }catch (InterruptedException e){
+                            Log.d(TAG,"NO MORE PEER UPDATES??");
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+            }).start();
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {}
+
+    }
+
+
     public void sendBroadcastIntent(String message){
         Log.d(TAG, "IN SENDING BROADCAST INTENT!!!");
 
@@ -206,9 +256,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         intent.setAction("com.ist174008.prof.cmov.cmov.MsgReceived");
         intent.putExtra("Msg", message);
         sendBroadcast(intent);
-
-        //newInt.putStringArrayListExtra("ForList", listIps);
-
     }
 
 
@@ -238,62 +285,88 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
 
     @Override
     public void onPeersAvailable(SimWifiP2pDeviceList peers) {
-        StringBuilder peersStr = new StringBuilder();
+
+        listInRange.clear();
+
         // compile list of devices in range
         for (SimWifiP2pDevice device : peers.getDeviceList()) {
-            String devstr = "" + device.deviceName + " (" + device.getVirtIp() + ")\n";
-            peersStr.append(devstr);
-            listIps.add(device.getVirtIp());
-            Log.d(TAG, "LIST ADDED " + listIps);
+            String devstr = "(" + device.deviceName + ")" + device.getVirtIp();
+            //peersStr.append(devstr);
+
+            // add devices to list
+            listInRange.add(devstr);
+            Log.d(TAG, "LIST ADDED RANGE" + listInRange);
+
+
+            // bike in range
+            if(device.getVirtIp() == null){
+                ((Global) this.getApplication()).setUserNearBike(true);
+
+                Toast.makeText(HomeActivity.this, "BIKE IN RANGE WOOOOW", Toast.LENGTH_SHORT).show();
+            }
         }
 
         // display list of devices in range
-        new AlertDialog.Builder(this)
+      /*  new AlertDialog.Builder(this)
                 .setTitle("Devices in WiFi Range")
                 .setMessage(peersStr.toString())
                 .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 })
-                .show();
+                .show();*/
     }
 
     @Override
     public void onGroupInfoAvailable(SimWifiP2pDeviceList devices,
                                      SimWifiP2pInfo groupInfo) {
 
+        // PROBLEMAS ???? METER LISTA GLOBAL - ACTUALIZA-LA
+
+        //StringBuilder peersStr = new StringBuilder();
+        listInGroup.clear();
+
         // compile list of network members
         StringBuilder peersStr = new StringBuilder();
+
+
         for (String deviceName : groupInfo.getDevicesInNetwork()) {
             SimWifiP2pDevice device = devices.getByName(deviceName);
-            String devstr = "" + deviceName + " (" +
+            String devstr = "(" + deviceName + ")" + device.getVirtIp();
+
+
+            String devstr2 = "" + deviceName + " (" +
                     ((device == null)?"??":device.getVirtIp()) + ")\n";
-            peersStr.append(devstr);
+
+            peersStr.append(devstr2);
+
+            // add contacts to list
+            if(device.getVirtIp() !=null) {
+                listInGroup.add(devstr);
+                Log.d(TAG, "LIST ADDED  GROUP" + listInGroup);
+            }
         }
 
         // display list of network members
-        new AlertDialog.Builder(this)
+        /*new AlertDialog.Builder(this)
                 .setTitle("Devices in WiFi Network")
                 .setMessage(peersStr.toString())
                 .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 })
-                .show();
+                .show();*/
     }
 
     /* Button listeners
     */
     private View.OnClickListener listenerBookBike= new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(HomeActivity.this, BookBikeActivity.class);
-                intent.putExtra("Location", actualLocation);
-                intent.putExtra("NumberOfStations",numberOfStations);
-
-                startActivity(intent);
-            }
-        };
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(HomeActivity.this, BookBikeActivity.class);
+            startActivity(intent);
+        }
+    };
 
     public void onSocial(View view) {
         if(mBound) {
@@ -303,7 +376,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         }
 
         Intent intent = new Intent(this, SocialActivity.class);
-        intent.putExtra("ForList", listIps);
+        intent.putExtra("ForList", listInGroup);
         startActivity(intent);
     }
 
@@ -324,27 +397,8 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
 
     }
 
-    /*@Override
-    public void onLocationChanged(Location location) {
-        actualLocation=location;
-        Log.d("GPS", "Location Changed " + location.toString());
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-    }*/
-
     private void guiSetButtonListeners(){
         findViewById(R.id.buttonBookBike).setOnClickListener(listenerBookBike);
-
     }
 }
 

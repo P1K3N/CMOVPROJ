@@ -54,8 +54,12 @@ public class SocialActivity extends ListActivity {
                 String itemValue = (String) getListView().getItemAtPosition(position);
                 Log.d(TAG,"CLICKED LIST " + itemValue);
 
+                int start = itemValue.indexOf(")");
+                String ipAddrs = itemValue.substring(start+1);
+
+
                 Intent intent = new Intent(getApplicationContext(),MessageActivity.class);
-                intent.putExtra("IP",itemValue);
+                intent.putExtra("IP",ipAddrs);
                 startActivity(intent);
             }
         });
