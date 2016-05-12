@@ -28,6 +28,7 @@ public class TrajectoriesActivity extends ListActivity {
 
     public void setTrajectories(ArrayList<ArrayList<LatLng>>  trajectories){
         this.trajectories = trajectories;
+        ((Global) this.getApplication()).setTrajectories(trajectories);
     }
 
 

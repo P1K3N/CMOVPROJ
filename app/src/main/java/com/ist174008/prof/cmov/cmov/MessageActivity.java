@@ -37,7 +37,7 @@ public class MessageActivity extends AppCompatActivity {
     private boolean side = true;
     private SimWifiP2pSocket mCliSocket = null;
     private IntentFilter  filterMSG;
-    private float pointsOfUser;
+    private double pointsOfUser;
 
 
     @Override
@@ -98,7 +98,7 @@ public class MessageActivity extends AppCompatActivity {
                 if(chatText.getText().toString().startsWith("Points:")) {
                     String[] Points =chatText.getText().toString().split(":");
                     String numberOfPoints= Points[1];
-                    Float numberOfPointsF= Float.parseFloat(numberOfPoints);
+                    Double numberOfPointsF= Double.parseDouble(numberOfPoints);
                     updatePoints(pointsOfUser,numberOfPointsF);
 
 
@@ -136,8 +136,8 @@ public class MessageActivity extends AppCompatActivity {
         return true;
     }
 
-    public void updatePoints(float Points,float numberToSend){
-        float newPoints=Points - numberToSend;
+    public void updatePoints(double Points,double numberToSend){
+        double newPoints=Points - numberToSend;
         ((Global) this.getApplication()).setPoints(newPoints);
         Toast.makeText(MessageActivity.this, "You have now " + newPoints + "Points" , Toast.LENGTH_SHORT).show();
 

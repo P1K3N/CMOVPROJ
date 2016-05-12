@@ -46,7 +46,6 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, String> {
 
             if(!ack) {
                 socket.close();
-
                 Log.v(TAG, "fail" );
             }
 

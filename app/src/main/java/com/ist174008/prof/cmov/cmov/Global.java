@@ -14,14 +14,27 @@ public class Global extends Application {
     private String password;
     private double points;
     private LatLng myLoc;
+    private ArrayList<ArrayList<LatLng>>  trajectories = new ArrayList<>();
+
     private SimWifiP2pManager manager=null;
     private SimWifiP2pManager.Channel channel=null;
+
+
     private boolean userNearBike=false;
     private boolean nearStation1=false;
     private boolean nearStation2=false;
     private String bookStation ="no";
     private boolean pickedBike=false;
     private boolean biking=false;
+
+
+    public ArrayList<ArrayList<LatLng>> getTrajectories() {
+        return trajectories;
+    }
+
+    public void setTrajectories(ArrayList<ArrayList<LatLng>> trajectories) {
+        this.trajectories = trajectories;
+    }
 
     public boolean isBiking() {
         return biking;
