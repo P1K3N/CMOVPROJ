@@ -39,12 +39,12 @@ public class NotifyBikeDropOff extends AsyncTask<String, Void, String> {
 
             outBound.writeObject(message.toString());
 
-            //boolean response = (boolean) inBound.readObject(); POSSIVEL FODA
+            boolean response = (boolean) inBound.readObject();
 
             socket.close();
 
         } catch (Throwable e) {
-            Log.v(TAG, "fail" + e.getMessage());
+            Log.v(TAG, "fail " + e.getMessage());
         }
         return null;
 

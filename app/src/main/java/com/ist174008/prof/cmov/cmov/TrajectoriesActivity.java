@@ -2,7 +2,9 @@ package com.ist174008.prof.cmov.cmov;
 
 import android.app.ListActivity;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -16,7 +18,17 @@ import java.util.List;
 
 public class TrajectoriesActivity extends ListActivity {
 
-    private ArrayList<LatLng> traj = new ArrayList<>();
+    private static final String TAG = "TrajectoriesActivity";
+
+    private ArrayList<ArrayList<LatLng>>  trajectories = new ArrayList<>();
+
+    public ArrayList<ArrayList<LatLng>> getTrajectories() {
+        return trajectories;
+    }
+
+    public void setTrajectories(ArrayList<ArrayList<LatLng>>  trajectories){
+        this.trajectories = trajectories;
+    }
 
 
     @Override
@@ -37,24 +49,15 @@ public class TrajectoriesActivity extends ListActivity {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
-                // ListView Clicked item value
-                String itemValue = (String) getListView().getItemAtPosition(position);
-
                 Intent intent = new Intent(view.getContext(), BookBikeActivity.class);
-               // intent.setClassName("com.mypackage", "com.mypackage.MainActivity");
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putExtra("TrajectoriesForMap", traj);
-                intent.putExtra("Trajectory Name", itemValue);
+                intent.putParcelableArrayListExtra("TrajectoriesForMap", trajectories.get(position));
+                intent.putExtra("ActionTrajs","myMethod");
 
-                startActivity(intent);
+                Log.v(TAG, "traj in pos " + trajectories.get(position));
+
+                view.getContext().startActivity(intent);
             }
         });
     }
-
-
-    public void setTrajectories(List<LatLng> trajectories){
-
-
-    }
 }
-

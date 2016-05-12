@@ -35,27 +35,23 @@ public class NotifyBikePickUp extends AsyncTask<String, Void, String> {
 
             message.put("Type", "Pick Up");
             message.put("Username", inputString[0]);
+            message.put("Station",inputString[1]);
 
             outBound.writeObject(message.toString());
 
-            //boolean response = (boolean) inBound.readObject(); POSSIVEL FODA
+            boolean response = (boolean) inBound.readObject();
 
             socket.close();
 
         } catch (Throwable e) {
-            Log.v(TAG, "fail" + e.getMessage());
+            Log.v(TAG, "fail " + e.getMessage());
         }
         return null;
-
     }
 
     @Override
     protected void onProgressUpdate(Void... values) {}
 
     @Override
-    protected void onPostExecute(String result) {
-
-
-
-    }
+    protected void onPostExecute(String result) {}
 }

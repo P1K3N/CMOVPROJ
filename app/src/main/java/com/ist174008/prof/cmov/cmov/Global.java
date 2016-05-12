@@ -12,7 +12,7 @@ public class Global extends Application {
 
     private String user;
     private String password;
-    private float points;
+    private double points;
     private LatLng myLoc;
     private SimWifiP2pManager manager=null;
     private SimWifiP2pManager.Channel channel=null;
@@ -105,15 +105,15 @@ public class Global extends Application {
         this.stations = stations;
     }
 
-    public float getPoints() {
+    public double getPoints() {
         return points;
     }
 
-    public void setPoints(float points) {
+    public void setPoints(double points) {
         this.points = points;
     }
 
-    public void addPoints(float points) {
+    public void addPoints(double points) {
         this.points += points;
     }
 

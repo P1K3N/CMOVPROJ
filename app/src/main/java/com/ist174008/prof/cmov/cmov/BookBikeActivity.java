@@ -1,6 +1,5 @@
 package com.ist174008.prof.cmov.cmov;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -48,6 +47,8 @@ public class BookBikeActivity extends FragmentActivity
 
 
     private static final String TAG = "BookBikeActivity";
+    private static final int RADIUS_EARTH = 6371;
+    private static final int MIL = 1000;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 10;
 
     private GoogleMap mGoogleMap;
@@ -62,19 +63,17 @@ public class BookBikeActivity extends FragmentActivity
     private List<LatLng> newTrajectory = new ArrayList<>();
 
 
-    private int timer=0;
-
-    private BroadcastReceiver updateReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
 
 
-            String trajName = intent.getExtras().getString("Trajectory Name");
-            List<LatLng> traj = intent.getExtras().getParcelable("TrajectoriesForMap");
-
-            //updateMap(trajName,traj);
+        if(intent.getStringExtra("ActionTrajs").equals("myMethod")){
+            ArrayList<LatLng> latLngArrayList = intent.getParcelableArrayListExtra("TrajectoriesForMap");
+            Log.v(TAG, "onNewIntent" + latLngArrayList );
+            updateMap(latLngArrayList);
         }
-    };
+    }
 
 
     @Override
@@ -84,13 +83,11 @@ public class BookBikeActivity extends FragmentActivity
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
-        unregisterReceiver(updateReceiver);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(updateReceiver, filter);
     }
 
     @Override
@@ -101,9 +98,6 @@ public class BookBikeActivity extends FragmentActivity
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
-        filter = new IntentFilter();
-        filter.addAction("UPDATE_MAP"); // ??
-        registerReceiver(updateReceiver, filter);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -119,12 +113,12 @@ public class BookBikeActivity extends FragmentActivity
     }
 
 
-    public void updateMap(String trajName, List<LatLng> traj1) {
+    public void updateMap(ArrayList<LatLng> trajectories) {
+        Log.v(TAG, "Updating map " + trajectories);
 
-        for (int i = 0; i < traj1.size() - 1; i++) {
-            LatLng src = traj1.get(i);
-            LatLng dest = traj1.get(i + 1);
-
+        for (int i = 0; i < trajectories.size() - 1; i++) {
+            LatLng src = trajectories.get(i);
+            LatLng dest = trajectories.get(i + 1);
 
             mGoogleMap.addPolyline(
                     new PolylineOptions().add(
@@ -179,11 +173,27 @@ public class BookBikeActivity extends FragmentActivity
         }
     }
 
+    private double calculateDistance(double lat1, double lat2, double long1, double long2) {
+        final int R = RADIUS_EARTH; // Radius of the earth
+
+        double latDistance = Math.toRadians(lat2 - lat1);
+
+        double lonDistance = Math.toRadians(long2 - long1);
+
+        double a = 	Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+        return R * c * MIL; // convert to meters
+    }
+
     @Override
     public void onConnected(Bundle bundle) {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(1000);
-        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setInterval(MIL);
+        mLocationRequest.setFastestInterval(MIL);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -223,17 +233,16 @@ public class BookBikeActivity extends FragmentActivity
 
 
             // TESTE DISTANCE FUNCTION !!!!
-            float[] distance = {0.0f};
+            double distance;
 
-            Location.distanceBetween(
+            distance = calculateDistance(
                     mLastLocation.getLatitude(),
                     mLastLocation.getLongitude(),
                     location.getLatitude(),
-                    location.getLongitude(),
-                    distance);
+                    location.getLongitude());
 
-            Toast.makeText(getApplicationContext(), "DISTANCE: " + distance[0], Toast.LENGTH_LONG).show();
-            ((Global) this.getApplication()).addPoints(distance[0] / 1000);
+            Toast.makeText(getApplicationContext(), "DISTANCE: " + distance, Toast.LENGTH_LONG).show();
+            ((Global) this.getApplication()).addPoints(distance);
             //
         }
 
@@ -296,7 +305,9 @@ public class BookBikeActivity extends FragmentActivity
                 ((Global) this.getApplication()).setBookStation("no");
 
                 new NotifyBikePickUp().executeOnExecutor(
-                        AsyncTask.THREAD_POOL_EXECUTOR);
+                        AsyncTask.THREAD_POOL_EXECUTOR,
+                        userName,
+                        "Station 1");
                 Log.d(TAG, "Picked up bike");
             }
         }
@@ -310,7 +321,9 @@ public class BookBikeActivity extends FragmentActivity
                 ((Global) this.getApplication()).setBiking(true);
 
                 new NotifyBikePickUp().executeOnExecutor(
-                        AsyncTask.THREAD_POOL_EXECUTOR);
+                        AsyncTask.THREAD_POOL_EXECUTOR,
+                        userName,
+                        "Station 2");
                 Log.d(TAG, "Picked up bike Stat2");
             }
         }
