@@ -2,7 +2,9 @@ package com.ist174008.prof.cmov.cmov;
 
 
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,6 +20,7 @@ public class SocialActivity extends ListActivity {
 
 
     public static final String TAG = "Social";
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,14 +59,20 @@ public class SocialActivity extends ListActivity {
 
                 int start = itemValue.indexOf(")");
                 String ipAddrs = itemValue.substring(start+1);
-
-
                 Intent intent = new Intent(getApplicationContext(),MessageActivity.class);
                 intent.putExtra("IP",ipAddrs);
                 startActivity(intent);
+
             }
         });
     }
+
+
+
+
+
+
+
 
 
     @Override

@@ -2,6 +2,8 @@
     <string name="username">Enter Username</string>
     <string name="passwordLogin">Enter Password</string>
     <string name="exampleUser">User1</string>
+    <string name="sendPoints">Enter number of points</string>
+
 
 
     <string name="app_name">UbiBike</string>
@@ -11,6 +13,7 @@
 
 
     <string name="sendButton">Send</string>
+    <string name="sendPointsButton">Send Points</string>
     <string name="connectButton">Connect</string>
     <string name="inRangeButton">In Range</string>
     <string name="inGroupButton">In Network</string>

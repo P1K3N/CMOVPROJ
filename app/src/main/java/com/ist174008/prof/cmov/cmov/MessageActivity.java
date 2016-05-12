@@ -28,6 +28,7 @@ import pt.inesc.termite.wifidirect.sockets.SimWifiP2pSocket;
 public class MessageActivity extends AppCompatActivity {
     private static final String TAG = "ChatActivity";
     private static final String ACTION_MSGREC = "com.ist174008.prof.cmov.cmov.MsgReceived";
+    private static final String ACTION_POINTS = "com.ist174008.prof.cmov.cmov.PointsRcv";
 
     private ChatArrayAdapter chatArrayAdapter;
     private ListView listView;
@@ -36,6 +37,7 @@ public class MessageActivity extends AppCompatActivity {
     private boolean side = true;
     private SimWifiP2pSocket mCliSocket = null;
     private IntentFilter  filterMSG;
+    private float pointsOfUser;
 
 
     @Override
@@ -57,6 +59,7 @@ public class MessageActivity extends AppCompatActivity {
 
         filterMSG = new IntentFilter(ACTION_MSGREC);
         registerReceiver(receiver, filterMSG);
+        pointsOfUser=((Global) this.getApplication()).getPoints();
 
 
         buttonSend = (Button) findViewById(R.id.send);
@@ -74,6 +77,7 @@ public class MessageActivity extends AppCompatActivity {
                     Intent intent= getIntent();
                     String ip= intent.getExtras().getString("IP");
 
+
                     new SendCommTask().executeOnExecutor(
                             AsyncTask.THREAD_POOL_EXECUTOR,
                             ip,chatText.getText().toString());
@@ -84,12 +88,21 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
         buttonSend.setOnClickListener(new View.OnClickListener() {
+
+
             @Override
             public void onClick(View arg0) {
 
                 Intent intent= getIntent();
                 String ip= intent.getExtras().getString("IP");
+                if(chatText.getText().toString().startsWith("Points:")) {
+                    String[] Points =chatText.getText().toString().split(":");
+                    String numberOfPoints= Points[1];
+                    Float numberOfPointsF= Float.parseFloat(numberOfPoints);
+                    updatePoints(pointsOfUser,numberOfPointsF);
 
+
+                }
                 new SendCommTask().executeOnExecutor(
                         AsyncTask.THREAD_POOL_EXECUTOR,
                         ip,chatText.getText().toString());
@@ -110,6 +123,8 @@ public class MessageActivity extends AppCompatActivity {
         });
     }
 
+
+
     private boolean sendChatMessage() {
         chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
         chatText.setText("");
@@ -119,6 +134,13 @@ public class MessageActivity extends AppCompatActivity {
     public boolean receiveChatMessage(boolean side, String MsgReceived){
         chatArrayAdapter.add(new ChatMessage(side, MsgReceived));
         return true;
+    }
+
+    public void updatePoints(float Points,float numberToSend){
+        float newPoints=Points - numberToSend;
+        ((Global) this.getApplication()).setPoints(newPoints);
+        Toast.makeText(MessageActivity.this, "You have now " + newPoints + "Points" , Toast.LENGTH_SHORT).show();
+
     }
 
     private  BroadcastReceiver receiver=new BroadcastReceiver(){
@@ -132,7 +154,8 @@ public class MessageActivity extends AppCompatActivity {
                 String Msg = intent.getExtras().getString("Msg");
                 receiveChatMessage(false, Msg);
             }
-        }
+            }
+
     };
 
     public class SendCommTask extends AsyncTask<String, Void, Void> {
