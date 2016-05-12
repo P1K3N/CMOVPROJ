@@ -98,8 +98,8 @@ public class MessageActivity extends AppCompatActivity {
                 if(chatText.getText().toString().startsWith("Points:")) {
                     String[] Points =chatText.getText().toString().split(":");
                     String numberOfPoints= Points[1];
-                    Double numberOfPointsF= Double.parseDouble(numberOfPoints);
-                    updatePoints(pointsOfUser,numberOfPointsF);
+                    Double numberOfPointsD= Double.parseDouble(numberOfPoints);
+                    updatePoints(pointsOfUser,numberOfPointsD);
 
 
                 }
