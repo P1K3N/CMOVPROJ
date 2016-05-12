@@ -3,6 +3,7 @@ package com.ist174008.prof.cmov.cmov;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -22,10 +23,6 @@ public class TrajectoriesActivity extends ListActivity {
 
     private ArrayList<ArrayList<LatLng>>  trajectories = new ArrayList<>();
 
-    public ArrayList<ArrayList<LatLng>> getTrajectories() {
-        return trajectories;
-    }
-
     public void setTrajectories(ArrayList<ArrayList<LatLng>>  trajectories){
         this.trajectories = trajectories;
         ((Global) this.getApplication()).setTrajectories(trajectories);
@@ -42,6 +39,14 @@ public class TrajectoriesActivity extends ListActivity {
         String mail = ((Global) this.getApplication()).getUser();
         String password = ((Global) this.getApplication()).getPassword();
 
+        //send trajectories to server
+        Integer nOfTrajs= ((Global) this.getApplication()).getNumberOfTrajectories();
+        new SendTrajectoriesToServer().executeOnExecutor(
+                AsyncTask.THREAD_POOL_EXECUTOR,
+                mail,
+                nOfTrajs.toString());
+
+        //get trajectories from server
         new GetTrajectoriesFromServer(this).execute(mail, password);
 
         listTraj.setOnItemClickListener(new AdapterView.OnItemClickListener() {

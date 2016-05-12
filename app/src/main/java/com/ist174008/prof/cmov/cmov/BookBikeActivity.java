@@ -371,12 +371,6 @@ public class BookBikeActivity extends FragmentActivity
             }
             Log.d(TAG, "Drop off bike");
         }
-
-        Integer nOfTrajs= ((Global) this.getApplication()).getNumberOfTrajectories();
-        new SendTrajectoriesToServer().executeOnExecutor(
-                AsyncTask.THREAD_POOL_EXECUTOR,
-                userName,
-                nOfTrajs.toString());
     }
 
    /* public class CreateTrajectory extends AsyncTask<String, Void, String> {

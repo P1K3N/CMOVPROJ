@@ -5,26 +5,31 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import org.json.JSONObject;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * Created by ist174008 on 13/04/2016.
  */
-public class SendTrajectoriesToServer extends AsyncTask<String, Void, String> {
+public class SendTrajectoriesToServer extends AsyncTask<String, Void, Void> {
 
     private static final String TAG = "SendTraj";
+    private ArrayList<ArrayList<LatLng>>  trajectories = new ArrayList<>();
 
     @Override
     protected void onPreExecute() {}
 
     @Override
-    protected String doInBackground(String... inputString) {
+    protected Void doInBackground(String... inputString) {
         try {
-            int j = Integer.parseInt(inputString[1]); // NUMBER OF LOCATIONS OBJECTS TO SEND
+            Log.v(TAG, "SEND TRAJS TO SERVER");
+            int j = Integer.parseInt(inputString[1]); // Number of trajectories to send
 
             Socket socket = new Socket("10.0.2.2", 6000);
 
@@ -50,10 +55,14 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, String> {
             }
 
             for(int i = 0; i < j; i++){
-                message.put("Latitude", 25.672 + (i * 3.4));
-                message.put("Longitude", 11.46 / (i + 1));
-                outBound.writeObject(message.toString());
-                inBound.readObject();
+                for(LatLng coord: trajectories.get(i)){
+                    message.put("Latitude", coord.latitude);
+                    message.put("Longitude", coord.longitude);
+                    outBound.writeObject(message.toString());
+                    inBound.readObject();
+
+                }
+                Log.v(TAG, "SENDING Trajs");
             }
 
             ack = (boolean) inBound.readObject();
@@ -69,7 +78,7 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, String> {
             Log.v(TAG, "fail" + e.getMessage());
         }
 
-        return "response";
+        return null;
 
     }
 
@@ -77,5 +86,5 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, String> {
     protected void onProgressUpdate(Void... values) {}
 
     @Override
-    protected void onPostExecute(String result) {}
+    protected void onPostExecute(Void result) {}
 }
