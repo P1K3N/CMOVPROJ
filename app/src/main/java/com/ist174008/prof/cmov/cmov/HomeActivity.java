@@ -256,10 +256,10 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         intent.setAction("com.ist174008.prof.cmov.cmov.MsgReceived");
         intent.putExtra("Msg", message);
-        if(message.toString().startsWith("Points:")) {
-            String[] Points =message.toString().split(":");
+        if(message.startsWith("Points:")) {
+            String[] Points =message.split(":");
             String numberOfPoints= Points[1];
-            Float numberOfPointsF= Float.parseFloat(numberOfPoints);
+            double numberOfPointsF= Double.parseDouble(numberOfPoints);
             updatePoints(numberOfPointsF);
 
 
@@ -267,7 +267,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         sendBroadcast(intent);
 
     }
-    public void updatePoints(float newPoints){
+    public void updatePoints(double newPoints){
         ((Global) this.getApplication()).addPoints(newPoints);
         Toast.makeText(HomeActivity.this, "You have received " + newPoints + "Points" , Toast.LENGTH_SHORT).show();
 
