@@ -74,9 +74,11 @@ public class MessageActivity extends AppCompatActivity {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
 
+                    if(!updatePoints()){
+                        return false;
+                    }
                     Intent intent= getIntent();
                     String ip= intent.getExtras().getString("IP");
-
 
                     new SendCommTask().executeOnExecutor(
                             AsyncTask.THREAD_POOL_EXECUTOR,
@@ -93,20 +95,15 @@ public class MessageActivity extends AppCompatActivity {
             @Override
             public void onClick(View arg0) {
 
-                Intent intent= getIntent();
-                String ip= intent.getExtras().getString("IP");
-                if(chatText.getText().toString().startsWith("Points:")) {
-                    String[] Points =chatText.getText().toString().split(":");
-                    String numberOfPoints= Points[1];
-                    Double numberOfPointsD= Double.parseDouble(numberOfPoints);
-                    updatePoints(pointsOfUser,numberOfPointsD);
+                if(updatePoints()) {
+                    Intent intent= getIntent();
+                    String ip= intent.getExtras().getString("IP");
 
-
+                    new SendCommTask().executeOnExecutor(
+                            AsyncTask.THREAD_POOL_EXECUTOR,
+                            ip, chatText.getText().toString());
+                    sendChatMessage();
                 }
-                new SendCommTask().executeOnExecutor(
-                        AsyncTask.THREAD_POOL_EXECUTOR,
-                        ip,chatText.getText().toString());
-                sendChatMessage();
             }
         });
 
@@ -123,8 +120,6 @@ public class MessageActivity extends AppCompatActivity {
         });
     }
 
-
-
     private boolean sendChatMessage() {
         chatArrayAdapter.add(new ChatMessage(side, chatText.getText().toString()));
         chatText.setText("");
@@ -136,11 +131,24 @@ public class MessageActivity extends AppCompatActivity {
         return true;
     }
 
-    public void updatePoints(double Points,double numberToSend){
-        double newPoints=Points - numberToSend;
-        ((Global) this.getApplication()).setPoints(newPoints);
-        Toast.makeText(MessageActivity.this, "You have now " + newPoints + "Points" , Toast.LENGTH_SHORT).show();
+    public boolean  updatePoints(){
+        if(chatText.getText().toString().startsWith("Points:")) {
+            String[] Points = chatText.getText().toString().split(":");
+            String numberOfPoints = Points[1];
+            Double numberOfPointsD = Double.parseDouble(numberOfPoints);
 
+
+            double newPoints = pointsOfUser - numberOfPointsD;
+            if(newPoints >= 0) {
+                ((Global) this.getApplication()).setPoints(newPoints);
+                Toast.makeText(MessageActivity.this, "You have now " + newPoints + "Points", Toast.LENGTH_SHORT).show();
+                return true;
+            }else{
+                Toast.makeText(MessageActivity.this, "Not Enough Points to send", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+        return true;
     }
 
     private  BroadcastReceiver receiver=new BroadcastReceiver(){
@@ -154,7 +162,7 @@ public class MessageActivity extends AppCompatActivity {
                 String Msg = intent.getExtras().getString("Msg");
                 receiveChatMessage(false, Msg);
             }
-            }
+        }
 
     };
 

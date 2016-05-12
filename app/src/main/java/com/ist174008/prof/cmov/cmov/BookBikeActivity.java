@@ -61,6 +61,7 @@ public class BookBikeActivity extends FragmentActivity
     IntentFilter filter = new IntentFilter();
     private boolean biking =false;
     private ArrayList<LatLng> newCourse = new ArrayList<>();
+    List<Polyline> polylines = new ArrayList<Polyline>();
 
 
     @Override
@@ -83,6 +84,11 @@ public class BookBikeActivity extends FragmentActivity
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
+
+        for(Polyline line : polylines){
+            line.remove();
+        }
+        polylines.clear();
     }
 
     @Override
@@ -120,11 +126,11 @@ public class BookBikeActivity extends FragmentActivity
             LatLng src = trajectories.get(i);
             LatLng dest = trajectories.get(i + 1);
 
-            mGoogleMap.addPolyline(
-                    new PolylineOptions().add(
-                            new LatLng(src.latitude, src.longitude),
-                            new LatLng(dest.latitude, dest.longitude)
-                    ).width(2).color(Color.BLUE).geodesic(true)
+            polylines.add(mGoogleMap.addPolyline(
+                            new PolylineOptions().add(
+                                    new LatLng(src.latitude, src.longitude),
+                                    new LatLng(dest.latitude, dest.longitude)
+                            ).width(2).color(Color.BLUE).geodesic(true))
             );
         }
     }
@@ -220,8 +226,6 @@ public class BookBikeActivity extends FragmentActivity
 
         biking = ((Global) this.getApplication()).isBiking();
 
-
-
         if (mLastLocation != null) {
             if(biking) {
                 newCourse.add(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
@@ -256,7 +260,6 @@ public class BookBikeActivity extends FragmentActivity
                     location.getLongitude());
 
             Toast.makeText(getApplicationContext(), "DISTANCE: " + distance, Toast.LENGTH_LONG).show();
-            ((Global) this.getApplication()).addPoints(distance);
             //
         }
 
@@ -303,16 +306,44 @@ public class BookBikeActivity extends FragmentActivity
             ((Global) this.getApplication()).setNearStation1(false);
         }
 
-        // Near Bikes in a Station ?
-        boolean nearBike = ((Global) this.getApplication()).isUserNearBike();
-        String bookedStation = ((Global) this.getApplication()).getBookStation();
+        // Near a Station ?
         boolean nearStation1 = ((Global) this.getApplication()).isNearStation1();
         boolean nearStation2 = ((Global) this.getApplication()).isNearStation2();
 
 
         // Pick up bike Station 1
-        if (nearBike && (bookedStation.equals("Station 1"))) {
-            if(nearStation1) {
+        pickUp(nearStation1,"Station 1");
+
+
+        // Pick up bike Station 2
+        pickUp(nearStation2,"Station 2");
+
+
+        boolean hasBike = ((Global) this.getApplication()).hasPickedBike();
+        boolean nearBike = ((Global) this.getApplication()).isUserNearBike();
+        String bookedStation = ((Global) this.getApplication()).getBookStation();
+
+        //Drop Off Bike
+        if(nearBike && hasBike) {
+            if(nearStation1 && bookedStation.equals("no")){
+
+                dropOff("Station 1");
+            }
+
+            if(nearStation2 && bookedStation.equals("no")){
+
+                dropOff("Station 2");
+            }
+            Log.d(TAG, "Drop off bike");
+        }
+    }
+
+    public void pickUp(boolean isNearStation,String station){
+        boolean nearBike = ((Global) this.getApplication()).isUserNearBike();
+        String bookedStation = ((Global) this.getApplication()).getBookStation();
+
+        if (nearBike && (bookedStation.equals(station))) {
+            if(isNearStation) {
                 // Biking
                 ((Global) this.getApplication()).setPickedBike(true);
                 ((Global) this.getApplication()).setBiking(true);
@@ -321,56 +352,20 @@ public class BookBikeActivity extends FragmentActivity
                 new NotifyBikePickUp().executeOnExecutor(
                         AsyncTask.THREAD_POOL_EXECUTOR,
                         userName,
-                        "Station 1");
+                        station);
                 Log.d(TAG, "Picked up bike");
             }
         }
+    }
 
-        // Pick up bike Station 2
-        if (nearBike && (bookedStation.equals("Station 2"))) {
-            if(nearStation2) {
+    public void dropOff(String station){
+        new NotifyBikeDropOff().executeOnExecutor(
+                AsyncTask.THREAD_POOL_EXECUTOR,
+                userName,
+                station);
 
-                ((Global) this.getApplication()).setPickedBike(true);
-                ((Global) this.getApplication()).setBookStation("no");
-                ((Global) this.getApplication()).setBiking(true);
-
-                new NotifyBikePickUp().executeOnExecutor(
-                        AsyncTask.THREAD_POOL_EXECUTOR,
-                        userName,
-                        "Station 2");
-                Log.d(TAG, "Picked up bike Stat2");
-            }
-        }
-
-        boolean hasBike = ((Global) this.getApplication()).hasPickedBike();
-        nearBike = ((Global) this.getApplication()).isUserNearBike();
-        bookedStation = ((Global) this.getApplication()).getBookStation();
-
-        //Drop Off Bike
-        if(nearBike && hasBike) {
-            if(nearStation1 && bookedStation.equals("no")){
-
-                new NotifyBikeDropOff().executeOnExecutor(
-                        AsyncTask.THREAD_POOL_EXECUTOR,
-                        userName,
-                        "Station 1");
-
-                ((Global) this.getApplication()).setPickedBike(false);
-                ((Global) this.getApplication()).setBiking(false);
-            }
-
-            if(nearStation2 && bookedStation.equals("no")){
-
-                new NotifyBikeDropOff().executeOnExecutor(
-                        AsyncTask.THREAD_POOL_EXECUTOR,
-                        userName,
-                        "Station 2");
-
-                ((Global) this.getApplication()).setPickedBike(false);
-                ((Global) this.getApplication()).setBiking(false);
-            }
-            Log.d(TAG, "Drop off bike");
-        }
+        ((Global) this.getApplication()).setPickedBike(false);
+        ((Global) this.getApplication()).setBiking(false);
     }
 
    /* public class CreateTrajectory extends AsyncTask<String, Void, String> {

@@ -32,7 +32,6 @@ public class SocialActivity extends ListActivity {
         Intent intent = getIntent();
         ArrayList<String> names;
 
-
         names = (ArrayList<String>) intent.getSerializableExtra("ForList");
         Log.d(TAG,"LIST??" + names);
 

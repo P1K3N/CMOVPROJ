@@ -92,9 +92,8 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
 
         new GetStationsFromServer(this).execute();
         String userName = ((Global) this.getApplication()).getUser();
-        ((Global) this.getApplication()).setPoints(10.0f);
+        ((Global) this.getApplication()).setPoints(10.0d);
 
-        new SendTrajectoriesToServer().execute(userName,"3"); // sitio errado
         //new GetPointsFromServer(this).execute(userName);
         //new SendPointsToServer().execute(userName, points); // (int) points then to string
 
@@ -256,21 +255,14 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
         intent.setAction("com.ist174008.prof.cmov.cmov.MsgReceived");
         intent.putExtra("Msg", message);
+
         if(message.startsWith("Points:")) {
             String[] Points =message.split(":");
             String numberOfPoints= Points[1];
             double numberOfPointsF= Double.parseDouble(numberOfPoints);
-            updatePoints(numberOfPointsF);
-
-
+            ((Global) this.getApplication()).addPoints(numberOfPointsF);
         }
         sendBroadcast(intent);
-
-    }
-    public void updatePoints(double newPoints){
-        ((Global) this.getApplication()).addPoints(newPoints);
-        //Toast.makeText(HomeActivity.this, "You have received " + newPoints + "Points" , Toast.LENGTH_SHORT).show();
-
     }
 
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -311,34 +303,21 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
             listInRange.add(devstr);
             Log.d(TAG, "LIST ADDED RANGE" + listInRange);
 
-
             // bike in range
             if(device.getVirtIp() == null){
                 ((Global) this.getApplication()).setUserNearBike(true);
 
-                Toast.makeText(HomeActivity.this, "BIKE IN RANGE WOOOOW", Toast.LENGTH_SHORT).show();
+                Toast.makeText(HomeActivity.this, "BIKE IN RANGE ", Toast.LENGTH_SHORT).show();
             }else{
                 ((Global) this.getApplication()).setUserNearBike(false);
                 Toast.makeText(HomeActivity.this, "BIKE GONE", Toast.LENGTH_SHORT).show();
             }
         }
-
-        // display list of devices in range
-      /*  new AlertDialog.Builder(this)
-                .setTitle("Devices in WiFi Range")
-                .setMessage(peersStr.toString())
-                .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .show();*/
     }
 
     @Override
     public void onGroupInfoAvailable(SimWifiP2pDeviceList devices,
                                      SimWifiP2pInfo groupInfo) {
-
-        // PROBLEMAS ???? METER LISTA GLOBAL - ACTUALIZA-LA
 
         //StringBuilder peersStr = new StringBuilder();
         listInGroup.clear();
@@ -363,16 +342,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
                 Log.d(TAG, "LIST ADDED  GROUP" + listInGroup);
             }
         }
-
-        // display list of network members
-        /*new AlertDialog.Builder(this)
-                .setTitle("Devices in WiFi Network")
-                .setMessage(peersStr.toString())
-                .setNeutralButton("Dismiss", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .show();*/
     }
 
     /* Button listeners
@@ -391,7 +360,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
             mManager.requestGroupInfo(mChannel, this);
             Log.d(TAG,"REQUESTED");
         }
-
         Intent intent = new Intent(this, SocialActivity.class);
         intent.putExtra("ForList", listInGroup);
         startActivity(intent);
@@ -405,18 +373,14 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         }
         Intent intent = new Intent(this, InfoActivity.class);
         startActivity(intent);
-
     }
 
     public void onTrajectories(View view) {
         Intent intent = new Intent(this, TrajectoriesActivity.class);
         startActivity(intent);
-
     }
 
     private void guiSetButtonListeners(){
         findViewById(R.id.buttonBookBike).setOnClickListener(listenerBookBike);
     }
 }
-
-

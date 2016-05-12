@@ -75,7 +75,7 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, Void> {
             socket.close();
 
         } catch (Throwable e) {
-            Log.v(TAG, "fail" + e.getMessage());
+            Log.v(TAG, "fail " + e.getMessage());
         }
 
         return null;
