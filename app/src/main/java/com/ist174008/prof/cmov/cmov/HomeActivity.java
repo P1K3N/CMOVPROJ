@@ -222,9 +222,12 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
                 public void run() {
 
                     while (true) {
-                        mManager.requestPeers(mChannel, activity);
-                        mManager.requestGroupInfo(mChannel, activity);
-                        Log.d(TAG, "Peer Updated!!");
+
+                        if(mManager !=null && mChannel !=null) {
+                            mManager.requestPeers(mChannel, activity);
+                            mManager.requestGroupInfo(mChannel, activity);
+                            Log.d(TAG, "Peer Updated!!");
+                        }
                         try{
                             Thread.sleep(10000);
                         }catch (InterruptedException e){
