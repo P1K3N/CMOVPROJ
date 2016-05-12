@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -50,14 +51,18 @@ public class BookBikeActivity extends FragmentActivity
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 10;
 
     private GoogleMap mGoogleMap;
-    private String userName;
+    private String userName= ((Global) this.getApplication()).getUser();
 
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private Marker mCurrLocationMarker;
     IntentFilter filter = new IntentFilter();
+    private boolean biking =false;
+    private List<LatLng> newTrajectory = new ArrayList<>();
 
+
+    private int timer=0;
 
     private BroadcastReceiver updateReceiver = new BroadcastReceiver() {
         @Override
@@ -71,11 +76,11 @@ public class BookBikeActivity extends FragmentActivity
         }
     };
 
-    // UNREGISTER POSSIVEL FODA
+
     @Override
     public void onPause() {
         super.onPause();
-        //stop location updates when Activity is no longer active
+        //stop location updates when Activity is no longer active -> LIMITATION !
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
@@ -96,15 +101,6 @@ public class BookBikeActivity extends FragmentActivity
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
-
-        /*if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            requestPermissions(new String[]{
-                    android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.INTERNET
-            },10 );
-            return;
-        }*/
-
         filter = new IntentFilter();
         filter.addAction("UPDATE_MAP"); // ??
         registerReceiver(updateReceiver, filter);
@@ -167,23 +163,19 @@ public class BookBikeActivity extends FragmentActivity
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        userName = ((Global) this.getApplication()).getUser();
+
 
         if (marker.getTitle().equals("Station 1")) {
-            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
             Toast.makeText(getApplicationContext(), "Bike Successfully Booked", Toast.LENGTH_SHORT).show();
 
             new AlertServerBookBike().execute(userName, "Station 1");
-
-            startActivity(intent);
+            ((Global) this.getApplication()).setBookStation("Station 1");
         }
         if (marker.getTitle().equals("Station 2")) {
-            Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
             Toast.makeText(getApplicationContext(), "Bike Successfully Booked", Toast.LENGTH_SHORT).show();
 
             new AlertServerBookBike().execute(userName, "Station 2");
-
-            startActivity(intent);
+            ((Global) this.getApplication()).setBookStation("Station 2");
         }
     }
 
@@ -216,8 +208,21 @@ public class BookBikeActivity extends FragmentActivity
     public void onLocationChanged(Location location) {
         Log.d(TAG, "Location Changed " + location.toString());
 
+        biking = ((Global) this.getApplication()).isBiking();
+
+
+
         if (mLastLocation != null) {
 
+            if(biking){
+                //new CreateTrajectory(mLastLocation).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                newTrajectory.add(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
+                // When does trajectory start or stop?
+                Log.d(TAG, "Adding to trajectories");
+            }
+
+
+            // TESTE DISTANCE FUNCTION !!!!
             float[] distance = {0.0f};
 
             Location.distanceBetween(
@@ -229,6 +234,7 @@ public class BookBikeActivity extends FragmentActivity
 
             Toast.makeText(getApplicationContext(), "DISTANCE: " + distance[0], Toast.LENGTH_LONG).show();
             ((Global) this.getApplication()).addPoints(distance[0] / 1000);
+            //
         }
 
         mLastLocation = location;
@@ -246,7 +252,7 @@ public class BookBikeActivity extends FragmentActivity
 
         //move map camera
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 4));
-        mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(10));
+        // mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(6));
 
         LatLng thisLoc = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
@@ -254,32 +260,138 @@ public class BookBikeActivity extends FragmentActivity
 
         List<LatLng> stationList = ((Global) this.getApplication()).getStations();
 
-        float[] distance = {0.0f};
-        float[] distance1 = {0.0f};
-        Location.distanceBetween(stationList.get(0).latitude, stationList.get(0).longitude, thisLoc.latitude, thisLoc.longitude, distance);
-        Location.distanceBetween(stationList.get(1).latitude, stationList.get(1).longitude, thisLoc.latitude, thisLoc.longitude, distance1);
 
+        // Distance to stations
+        float[] distanceStation1 = {0.0f};
+        float[] distanceStation2 = {0.0f};
+        Location.distanceBetween(stationList.get(0).latitude, stationList.get(0).longitude, thisLoc.latitude, thisLoc.longitude, distanceStation1);
+        Location.distanceBetween(stationList.get(1).latitude, stationList.get(1).longitude, thisLoc.latitude, thisLoc.longitude, distanceStation2);
 
-        boolean nearBike = ((Global) this.getApplication()).isUserNearBike();
-
-        if(nearBike) {
-            Toast.makeText(getApplicationContext(), "IS NEAR BIKE OMG ", Toast.LENGTH_SHORT).show();
+        // Near Stations ?
+        if(distanceStation1[0] <= 20){
+            ((Global) this.getApplication()).setNearStation1(true);
+        }else{
+            ((Global) this.getApplication()).setNearStation1(false);
         }
 
-            /* but is he near station?
-            if (nearBike && nearStation){
-                if(hasBike)
-                    DropOff
-                else
-                    PickUp
+        if(distanceStation2[0] <= 20){
+            ((Global) this.getApplication()).setNearStation2(true);
+        }else{
+            ((Global) this.getApplication()).setNearStation1(false);
+        }
 
-            }
-            if(nearBike && !nearStation){
-                    BIKING
-            }
-            }*/
+        // Near Bikes in a Station ?
+        boolean nearBike = ((Global) this.getApplication()).isUserNearBike();
+        String bookedStation = ((Global) this.getApplication()).getBookStation();
+        boolean nearStation1 = ((Global) this.getApplication()).isNearStation1();
+        boolean nearStation2 = ((Global) this.getApplication()).isNearStation2();
 
+
+        // Pick up bike Station 1
+        if (nearBike && (bookedStation.equals("Station 1"))) {
+            if(nearStation1) {
+                // Biking
+                ((Global) this.getApplication()).setPickedBike(true);
+                ((Global) this.getApplication()).setBiking(true);
+                ((Global) this.getApplication()).setBookStation("no");
+
+                new NotifyBikePickUp().executeOnExecutor(
+                        AsyncTask.THREAD_POOL_EXECUTOR);
+                Log.d(TAG, "Picked up bike");
+            }
+        }
+
+        // Pick up bike Station 2
+        if (nearBike && (bookedStation.equals("Station 2"))) {
+            if(nearStation2) {
+
+                ((Global) this.getApplication()).setPickedBike(true);
+                ((Global) this.getApplication()).setBookStation("no");
+                ((Global) this.getApplication()).setBiking(true);
+
+                new NotifyBikePickUp().executeOnExecutor(
+                        AsyncTask.THREAD_POOL_EXECUTOR);
+                Log.d(TAG, "Picked up bike Stat2");
+            }
+        }
+
+        boolean hasBike = ((Global) this.getApplication()).hasPickedBike();
+        nearBike = ((Global) this.getApplication()).isUserNearBike();
+        bookedStation = ((Global) this.getApplication()).getBookStation();
+
+        //Drop Off Bike
+        if(nearBike && hasBike) {
+            if(nearStation1 && bookedStation.equals("no")){
+
+                new NotifyBikeDropOff().executeOnExecutor(
+                        AsyncTask.THREAD_POOL_EXECUTOR,
+                        userName,
+                        "Station 1");
+
+                ((Global) this.getApplication()).setPickedBike(false);
+                ((Global) this.getApplication()).setBiking(false);
+            }
+
+            if(nearStation2 && bookedStation.equals("no")){
+
+                new NotifyBikeDropOff().executeOnExecutor(
+                        AsyncTask.THREAD_POOL_EXECUTOR,
+                        userName,
+                        "Station 2");
+
+                ((Global) this.getApplication()).setPickedBike(false);
+                ((Global) this.getApplication()).setBiking(false);
+            }
+
+            Log.d(TAG, "Drop off bike");
+        }
     }
+
+   /* public class CreateTrajectory extends AsyncTask<String, Void, String> {
+        private Location location;
+
+        public CreateTrajectory(Location loc){
+            this.location = loc;
+        }
+
+        @Override
+        protected void onPreExecute() {}
+
+        @Override
+        protected String doInBackground(final String... inputString) {
+            Log.d(TAG, "Biking background " );
+
+            new Thread(new Runnable() {
+
+                public void run() {
+
+                    while (biking) {
+
+                        newTrajectory.add(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
+
+
+                        try{
+                            Thread.sleep(10000);
+                        }catch (InterruptedException e){
+                            Log.d(TAG,"Biking " + e.getMessage());
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
+            }).start();
+
+         return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {}
+
+        @Override
+        protected void onPostExecute(String result) {
+
+        }
+    }*/
+
 
     public void onStatusChanged(String provider, int status, Bundle extras) {
 

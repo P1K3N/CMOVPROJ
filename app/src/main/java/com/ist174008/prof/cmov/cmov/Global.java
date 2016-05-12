@@ -17,6 +17,51 @@ public class Global extends Application {
     private SimWifiP2pManager manager=null;
     private SimWifiP2pManager.Channel channel=null;
     private boolean userNearBike=false;
+    private boolean nearStation1=false;
+    private boolean nearStation2=false;
+    private String bookStation ="no";
+    private boolean pickedBike=false;
+    private boolean biking=false;
+
+    public boolean isBiking() {
+        return biking;
+    }
+
+    public void setBiking(boolean biking) {
+        this.biking = biking;
+    }
+
+    public boolean hasPickedBike() {
+        return pickedBike;
+    }
+
+    public void setPickedBike(boolean pickedBike) {
+        this.pickedBike = pickedBike;
+    }
+
+    public String getBookStation() {
+        return bookStation;
+    }
+
+    public void setBookStation(String bookStation) {
+        this.bookStation = bookStation;
+    }
+
+    public boolean isNearStation1() {
+        return nearStation1;
+    }
+
+    public void setNearStation1(boolean nearStation1) {
+        this.nearStation1 = nearStation1;
+    }
+
+    public boolean isNearStation2() {
+        return nearStation2;
+    }
+
+    public void setNearStation2(boolean nearStation2) {
+        this.nearStation2 = nearStation2;
+    }
 
     public boolean isUserNearBike() {
         return userNearBike;

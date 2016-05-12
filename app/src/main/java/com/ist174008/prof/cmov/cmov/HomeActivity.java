@@ -3,14 +3,11 @@ package com.ist174008.prof.cmov.cmov;
 
 
 
-import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -26,7 +23,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import pt.inesc.termite.wifidirect.SimWifiP2pBroadcast;
@@ -230,7 +226,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
                         mManager.requestGroupInfo(mChannel, activity);
                         Log.d(TAG, "Peer Updated!!");
                         try{
-                            Thread.sleep(20000);
+                            Thread.sleep(10000);
                         }catch (InterruptedException e){
                             Log.d(TAG,"NO MORE PEER UPDATES??");
                             Thread.currentThread().interrupt();
@@ -303,6 +299,9 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
                 ((Global) this.getApplication()).setUserNearBike(true);
 
                 Toast.makeText(HomeActivity.this, "BIKE IN RANGE WOOOOW", Toast.LENGTH_SHORT).show();
+            }else{
+                ((Global) this.getApplication()).setUserNearBike(false);
+                Toast.makeText(HomeActivity.this, "BIKE GONE", Toast.LENGTH_SHORT).show();
             }
         }
 
