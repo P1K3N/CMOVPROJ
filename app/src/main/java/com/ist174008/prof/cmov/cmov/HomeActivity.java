@@ -258,11 +258,12 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         intent.setAction("com.ist174008.prof.cmov.cmov.MsgReceived");
         intent.putExtra("Msg", message);
 
-        if(message.startsWith("Points:")) {
-            String[] Points =message.split(":");
-            String numberOfPoints= Points[1];
-            int numberOfPointsF= Integer.parseInt(numberOfPoints);
-            ((Global) this.getApplication()).addPoints(numberOfPointsF);
+        if(message.startsWith("Points(")) {
+            int start = message.indexOf("(");
+            int finish = message.indexOf(")");
+            String pointsToSend = message.substring(start + 1, finish);
+
+            ((Global) this.getApplication()).addPoints(Integer.parseInt(pointsToSend));
         }
         sendBroadcast(intent);
     }
