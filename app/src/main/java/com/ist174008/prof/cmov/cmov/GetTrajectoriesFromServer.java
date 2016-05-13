@@ -68,6 +68,10 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList
             outBound.writeObject("");
 
             numberOfTrajectories = message.getInt("Trajectories");
+            if(numberOfTrajectories ==0){
+                Log.d(TAG, "no Trajs");
+                return null;
+            }
 
             for(int i = 0; i < message.getInt("Trajectories"); i++) {
                 str = (String) inBound.readObject();
@@ -90,6 +94,7 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList
                     LatLng latlng = new LatLng(json.getDouble("Latitude" + i),json.getDouble("Longitude" + i));
                     course.add(latlng);
                 }
+                Log.d(TAG,"Trajectories fetched:" + trajectories);
                 trajectories.add(course);
             }
             socket.close();
@@ -108,7 +113,7 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList
     protected void onPostExecute(ArrayList<ArrayList<LatLng>>  result) {
         ListView listTraj= trajActv.getListView();
 
-        if (result != null) {
+        if (result != null || !trajectories.isEmpty()) {
             Log.d(TAG, "Should show trajectories");
             this.trajActv.setTrajectories(result);
 
