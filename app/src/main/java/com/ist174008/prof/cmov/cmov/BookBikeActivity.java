@@ -62,11 +62,9 @@ public class BookBikeActivity extends FragmentActivity
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
-
         if(intent.getStringExtra("ActionTrajs").equals("myMethod")){
             ArrayList<LatLng> latLngArrayList = intent.getParcelableArrayListExtra("TrajectoriesForMap");
-            Log.v(TAG, "onNewIntent" + latLngArrayList );
+            Log.d(TAG, "onNewIntent" + latLngArrayList );
             updateMap(latLngArrayList);
         }
     }
@@ -78,11 +76,15 @@ public class BookBikeActivity extends FragmentActivity
         if (mGoogleApiClient != null) {
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         }
+    }
 
-        for(Polyline line : polylines){
+    public void onDestroy(){
+        super.onDestroy();
+          for(Polyline line : polylines){
             line.remove();
         }
         polylines.clear();
+
     }
 
     @Override
@@ -209,12 +211,15 @@ public class BookBikeActivity extends FragmentActivity
             if(biking) {
                 newCourse.add(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
                 calculatePoints(mLastLocation,location);
+
                 Log.d(TAG, "Adding courses ");
 
             }else {
                 if(!newCourse.isEmpty()) {
                     ((Global) this.getApplication()).addTrajectories(newCourse);
+                    Integer nOfTra = ((Global) this.getApplication()).getNumberOfTrajectories();
                     newCourse.clear();
+                    new SendTrajectoriesToServer().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,userName,nOfTra.toString());
                 }
             }
         }

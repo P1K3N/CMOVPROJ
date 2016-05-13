@@ -19,6 +19,7 @@ import java.util.ArrayList;
 public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList<ArrayList<LatLng>> > {
 
     private static final String TAG = "GetTraj";
+    private static final String NO_TRAJS = "No trajectories to show";
 
     private TrajectoriesActivity trajActv;
     private String str;
@@ -56,15 +57,17 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList
 
             if(str == null) {
                 socket.close();
-                Log.d(TAG,"fail");
+                Log.d(TAG,"Wrong username");
                 return null;
             }
 
             message = new JSONObject(str);
 
-            ArrayList<JSONObject> jsonArray = new ArrayList<>();
+            ArrayList<JSONObject> jsonArray = new ArrayList<JSONObject>();
 
             outBound.writeObject("");
+
+            numberOfTrajectories = message.getInt("Trajectories");
 
             for(int i = 0; i < message.getInt("Trajectories"); i++) {
                 str = (String) inBound.readObject();
@@ -77,7 +80,7 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList
 
             if(str == null) {
                 socket.close();
-                Log.d(TAG, "Fail ");
+                Log.d(TAG, "Fail after getting trajectories ");
                 return null;
             }
 
@@ -92,22 +95,38 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList
             socket.close();
 
         } catch (Throwable e) {
-            Log.d(TAG, " Fail ");
+            Log.d(TAG, " Fail everything");
             return null;
         }
         return trajectories;
     }
-
-
 
     @Override
     protected void onProgressUpdate(Void... values) {}
 
     @Override
     protected void onPostExecute(ArrayList<ArrayList<LatLng>>  result) {
+        ListView listTraj= trajActv.getListView();
+
         if (result != null) {
             Log.d(TAG, "Should show trajectories");
             this.trajActv.setTrajectories(result);
+
+            ArrayList<String> listStr=new ArrayList<>();
+
+            for (int i = 0; i < numberOfTrajectories; i++) {
+                listStr.add("Trajectory " + i + 1);
+            }
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv.getApplicationContext(),
+                    R.layout.list_black_text, R.id.list_content, listStr);
+
+            listTraj.setAdapter(adapter);
+        }else {
+            String[] val = {NO_TRAJS};
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv.getApplicationContext(), R.layout.list_black_text, R.id.list_content, val);
+            listTraj.setAdapter(adapter);
         }
     }
 }

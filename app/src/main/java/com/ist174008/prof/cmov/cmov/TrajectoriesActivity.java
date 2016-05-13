@@ -25,12 +25,10 @@ public class TrajectoriesActivity extends ListActivity {
 
     private ArrayList<ArrayList<LatLng>>  trajectories = new ArrayList<>();
     private String mail;
-    private String password;
-    private int numberOfTrajectories;
 
 
     public void setTrajectories(ArrayList<ArrayList<LatLng>> trajectories){
-      ((Global) this.getApplication()).setTrajectories(trajectories);
+      this.trajectories=trajectories;
     }
 
     @Override
@@ -51,34 +49,14 @@ public class TrajectoriesActivity extends ListActivity {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_trajectories);
-        Log.d(TAG, "ENTER trajectories ");
+        Log.d(TAG, " trajectories activity ");
+
+        mail = ((Global) this.getApplication()).getUser();
 
         new GetTrajectoriesFromServer(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mail);
 
         ListView listTraj = getListView();
 
-        mail = ((Global) this.getApplication()).getUser();
-        password = ((Global) this.getApplication()).getPassword();
-        numberOfTrajectories = ((Global) this.getApplication()).getNumberOfTrajectories();
-        this.trajectories = ((Global) this.getApplication()).getTrajectories();
-
-        ArrayList<String> listStr=new ArrayList<>();
-
-        if(trajectories == null || trajectories.isEmpty()) {
-            String[] val = {NO_TRAJS};
-
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getApplicationContext(), R.layout.list_black_text, R.id.list_content, val);
-            listTraj.setAdapter(adapter);
-        }else {
-            for (int i = 0; i < numberOfTrajectories; i++) {
-                listStr.add("Trajectory " + i + 1);
-            }
-
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getApplicationContext(),
-                    android.R.layout.simple_list_item_1, android.R.id.text1, listStr);
-
-            listTraj.setAdapter(adapter);
-        }
         listTraj.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -92,6 +70,7 @@ public class TrajectoriesActivity extends ListActivity {
                 if(!itemValue.equals(NO_TRAJS)) {
                     Intent intent = new Intent(view.getContext(), BookBikeActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    Log.d(TAG," Trajs on list: " + trajectories);
                     intent.putParcelableArrayListExtra("TrajectoriesForMap", trajectories.get(position));
                     intent.putExtra("ActionTrajs", "myMethod");
 
