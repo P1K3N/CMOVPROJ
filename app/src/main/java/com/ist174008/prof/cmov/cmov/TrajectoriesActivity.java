@@ -20,12 +20,31 @@ import java.util.List;
 public class TrajectoriesActivity extends ListActivity {
 
     private static final String TAG = "TrajectoriesActivity";
+    private static final String NO_TRAJS = "No trajectories to show";
 
     private ArrayList<ArrayList<LatLng>>  trajectories = new ArrayList<>();
+    private String mail;
+    private String password;
+
 
     public void setTrajectories(ArrayList<ArrayList<LatLng>>  trajectories){
         this.trajectories = trajectories;
         ((Global) this.getApplication()).setTrajectories(trajectories);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        new GetTrajectoriesFromServer(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,mail, password);
+
+        //send trajectories to server
+        Integer nOfTrajs= ((Global) this.getApplication()).getNumberOfTrajectories();
+        if(nOfTrajs !=0) {
+            new SendTrajectoriesToServer().executeOnExecutor(
+                    AsyncTask.THREAD_POOL_EXECUTOR,
+                    mail,
+                    nOfTrajs.toString());
+        }
     }
 
 
@@ -36,18 +55,9 @@ public class TrajectoriesActivity extends ListActivity {
 
         ListView listTraj = getListView();
 
-        String mail = ((Global) this.getApplication()).getUser();
-        String password = ((Global) this.getApplication()).getPassword();
-
-        //send trajectories to server
-        Integer nOfTrajs= ((Global) this.getApplication()).getNumberOfTrajectories();
-        new SendTrajectoriesToServer().executeOnExecutor(
-                AsyncTask.THREAD_POOL_EXECUTOR,
-                mail,
-                nOfTrajs.toString());
-
-        //get trajectories from server
-        new GetTrajectoriesFromServer(this).execute(mail, password);
+        mail = ((Global) this.getApplication()).getUser();
+        password = ((Global) this.getApplication()).getPassword();
+        Log.d(TAG, "ENTER trajectories " + listTraj);
 
         listTraj.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -55,14 +65,20 @@ public class TrajectoriesActivity extends ListActivity {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
-                Intent intent = new Intent(view.getContext(), BookBikeActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.putParcelableArrayListExtra("TrajectoriesForMap", trajectories.get(position));
-                intent.putExtra("ActionTrajs","myMethod");
+                // ListView Clicked item value
+                String itemValue = (String) getListView().getItemAtPosition(position);
+                Log.d(TAG, "CLICKED LIST " + itemValue);
 
-                Log.v(TAG, "traj in pos " + trajectories.get(position));
+                if(!itemValue.equals(NO_TRAJS)) {
+                    Intent intent = new Intent(view.getContext(), BookBikeActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.putParcelableArrayListExtra("TrajectoriesForMap", trajectories.get(position));
+                    intent.putExtra("ActionTrajs", "myMethod");
 
-                view.getContext().startActivity(intent);
+                    Log.d(TAG, "traj in pos " + trajectories.get(position));
+
+                    view.getContext().startActivity(intent);
+                }
             }
         });
     }

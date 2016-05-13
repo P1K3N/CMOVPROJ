@@ -92,7 +92,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
 
         new GetStationsFromServer(this).execute();
         String userName = ((Global) this.getApplication()).getUser();
-        ((Global) this.getApplication()).setPoints(10.0d);
+        ((Global) this.getApplication()).setPoints(10);
 
         //new GetPointsFromServer(this).execute(userName);
         //new SendPointsToServer().execute(userName, points); // (int) points then to string
@@ -131,6 +131,8 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
     public void setStations(List<Double> stations){
         int listSize = stations.size();
         int numberOfStations = listSize/2;
+
+        ((Global)this.getApplication()).setNumberOfStation(numberOfStations);
 
         List<Double> stationsLat;
         List<Double> stationsLong;
@@ -259,7 +261,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         if(message.startsWith("Points:")) {
             String[] Points =message.split(":");
             String numberOfPoints= Points[1];
-            double numberOfPointsF= Double.parseDouble(numberOfPoints);
+            int numberOfPointsF= Integer.parseInt(numberOfPoints);
             ((Global) this.getApplication()).addPoints(numberOfPointsF);
         }
         sendBroadcast(intent);
@@ -310,7 +312,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
                 Toast.makeText(HomeActivity.this, "BIKE IN RANGE ", Toast.LENGTH_SHORT).show();
             }else{
                 ((Global) this.getApplication()).setUserNearBike(false);
-                Toast.makeText(HomeActivity.this, "BIKE GONE", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -355,22 +356,12 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
     };
 
     public void onSocial(View view) {
-        if(mBound) {
-            mManager.requestPeers(mChannel, this);
-            mManager.requestGroupInfo(mChannel, this);
-            Log.d(TAG,"REQUESTED");
-        }
         Intent intent = new Intent(this, SocialActivity.class);
         intent.putExtra("ForList", listInGroup);
         startActivity(intent);
     }
 
     public void onUserInfo(View view) {
-        if(mBound) {
-            mManager.requestPeers(mChannel, this);
-            mManager.requestGroupInfo(mChannel, this);
-            Log.d(TAG,"REQUESTED");
-        }
         Intent intent = new Intent(this, InfoActivity.class);
         startActivity(intent);
     }

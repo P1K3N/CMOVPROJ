@@ -58,7 +58,8 @@
         android:layout_marginTop="49dp"
         android:layout_below="@+id/editTextPassword"
         android:layout_alignLeft="@+id/editTextPassword"
-        android:layout_alignStart="@+id/editTextPassword" />
+        android:layout_alignStart="@+id/editTextPassword"
+        android:textSize="11dp" />
 
     <Button
         android:layout_width="wrap_content"
@@ -66,9 +67,9 @@
         android:text="Register"
         android:id="@+id/buttonRegister"
         android:layout_toRightOf="@+id/textViewPassword"
-        android:layout_alignRight="@+id/editTextPassword"
-        android:layout_alignEnd="@+id/editTextPassword"
         android:layout_alignBottom="@+id/btnLOGIN"
-        android:layout_alignTop="@+id/btnLOGIN" />
+        android:layout_alignTop="@+id/btnLOGIN"
+        android:layout_alignEnd="@+id/editTextPassword"
+        android:textSize="11dp" />
 
 </RelativeLayout>

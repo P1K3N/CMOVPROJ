@@ -12,8 +12,9 @@ public class Global extends Application {
 
     private String user;
     private String password;
-    private double points;
+    private int points;
     private LatLng myLoc;
+    private int numberOfStation;
     private ArrayList<ArrayList<LatLng>>  trajectories = new ArrayList<>();
 
     private SimWifiP2pManager manager=null;
@@ -34,6 +35,13 @@ public class Global extends Application {
 
     public void setTrajectories(ArrayList<ArrayList<LatLng>> trajectories) {
         this.trajectories = trajectories;
+    }
+    public int getNumberOfStation() {
+        return numberOfStation;
+    }
+
+    public void setNumberOfStation(int numberOfStation) {
+        this.numberOfStation = numberOfStation;
     }
 
     public void addTrajectories(ArrayList<LatLng> courses) {
@@ -126,18 +134,15 @@ public class Global extends Application {
         this.stations = stations;
     }
 
-    public double getPoints() {
+    public int getPoints() {
         return points;
     }
 
-    public void setPoints(double points) {
-        if(points < 0){
-            this.points=0;
-        }
+    public void setPoints(int points) {
         this.points = points;
     }
 
-    public void addPoints(double points) {
+    public void addPoints(int points) {
         this.points += points;
     }
 

@@ -1,13 +1,10 @@
 package com.ist174008.prof.cmov.cmov;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
+
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -47,18 +44,16 @@ public class BookBikeActivity extends FragmentActivity
 
 
     private static final String TAG = "BookBikeActivity";
-    private static final int RADIUS_EARTH = 6371;
     private static final int MIL = 1000;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 10;
 
     private GoogleMap mGoogleMap;
-    private String userName= ((Global) this.getApplication()).getUser();
+    private String userName;
 
     private LocationRequest mLocationRequest;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private Marker mCurrLocationMarker;
-    IntentFilter filter = new IntentFilter();
     private boolean biking =false;
     private ArrayList<LatLng> newCourse = new ArrayList<>();
     List<Polyline> polylines = new ArrayList<Polyline>();
@@ -75,7 +70,6 @@ public class BookBikeActivity extends FragmentActivity
             updateMap(latLngArrayList);
         }
     }
-
 
     @Override
     public void onPause() {
@@ -104,6 +98,7 @@ public class BookBikeActivity extends FragmentActivity
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkLocationPermission();
         }
+        userName= ((Global) this.getApplication()).getUser();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -149,8 +144,7 @@ public class BookBikeActivity extends FragmentActivity
 
         List<LatLng> stationList = ((Global) this.getApplication()).getStations();
 
-        Intent intent = getIntent();
-        int numberOfStations = (int) intent.getExtras().get("NumberOfStations");
+        int numberOfStations = ((Global)this.getApplication()).getNumberOfStation();
 
         for (int i = 0; i < numberOfStations; i++) {
 
@@ -179,22 +173,6 @@ public class BookBikeActivity extends FragmentActivity
         }
     }
 
-    private double calculateDistance(double lat1, double lat2, double long1, double long2) {
-        final int R = RADIUS_EARTH; // Radius of the earth
-
-        double latDistance = Math.toRadians(lat2 - lat1);
-
-        double lonDistance = Math.toRadians(long2 - long1);
-
-        double a = 	Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-        return R * c * MIL; // convert to meters
-    }
-
     @Override
     public void onConnected(Bundle bundle) {
         mLocationRequest = new LocationRequest();
@@ -211,13 +189,13 @@ public class BookBikeActivity extends FragmentActivity
 
     @Override
     public void onConnectionSuspended(int k) {
-        Log.i(TAG, "Connection suspended");
+        Log.d(TAG, "Connection suspended");
         mGoogleApiClient.connect();
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
+        Log.d(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
     }
 
     @Override
@@ -229,6 +207,7 @@ public class BookBikeActivity extends FragmentActivity
         if (mLastLocation != null) {
             if(biking) {
                 newCourse.add(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
+                calculatePoints(mLastLocation,location);
                 Log.d(TAG, "Adding courses in IF");
 
             }else {
@@ -248,19 +227,6 @@ public class BookBikeActivity extends FragmentActivity
                 }
             }).start();
         }*/
-
-
-            // TESTE DISTANCE FUNCTION !!!!
-            double distance;
-
-            distance = calculateDistance(
-                    mLastLocation.getLatitude(),
-                    mLastLocation.getLongitude(),
-                    location.getLatitude(),
-                    location.getLongitude());
-
-            Toast.makeText(getApplicationContext(), "DISTANCE: " + distance, Toast.LENGTH_LONG).show();
-            //
         }
 
         mLastLocation = location;
@@ -292,6 +258,9 @@ public class BookBikeActivity extends FragmentActivity
         float[] distanceStation2 = {0.0f};
         Location.distanceBetween(stationList.get(0).latitude, stationList.get(0).longitude, thisLoc.latitude, thisLoc.longitude, distanceStation1);
         Location.distanceBetween(stationList.get(1).latitude, stationList.get(1).longitude, thisLoc.latitude, thisLoc.longitude, distanceStation2);
+
+        Toast.makeText(getApplicationContext(), "DISTANCE STATION 1: " + distanceStation1[0], Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "DISTANCE STATION 2: " + distanceStation2[0], Toast.LENGTH_LONG).show();
 
         // Near Stations ?
         if(distanceStation1[0] <= 20){
@@ -366,6 +335,15 @@ public class BookBikeActivity extends FragmentActivity
 
         ((Global) this.getApplication()).setPickedBike(false);
         ((Global) this.getApplication()).setBiking(false);
+    }
+
+
+    public void calculatePoints(Location src,Location dest){
+
+        float[] result={0.0f};
+        Location.distanceBetween(src.getLatitude(), src.getLongitude(), dest.getLatitude(), dest.getLongitude(), result);
+        ((Global) this.getApplication()).addPoints((int) (result[0] / MIL));
+        Log.d(TAG, "Calculation Points " + (int) (result[0] / MIL) );
     }
 
    /* public class CreateTrajectory extends AsyncTask<String, Void, String> {

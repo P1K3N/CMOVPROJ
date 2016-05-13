@@ -37,7 +37,7 @@ public class MessageActivity extends AppCompatActivity {
     private boolean side = true;
     private SimWifiP2pSocket mCliSocket = null;
     private IntentFilter  filterMSG;
-    private double pointsOfUser;
+    private int pointsOfUser;
 
 
     @Override
@@ -132,13 +132,22 @@ public class MessageActivity extends AppCompatActivity {
     }
 
     public boolean  updatePoints(){
+        //Points(2323323)
         if(chatText.getText().toString().startsWith("Points:")) {
-            String[] Points = chatText.getText().toString().split(":");
-            String numberOfPoints = Points[1];
-            Double numberOfPointsD = Double.parseDouble(numberOfPoints);
 
+            int start = chatText.getText().toString().indexOf("(");
+            int finish = chatText.getText().toString().indexOf(")");
+            String pointsToSend = chatText.getText().toString().substring(start + 1, finish);
 
-            double newPoints = pointsOfUser - numberOfPointsD;
+            if(!pointsToSend.matches("[0-9]+") ){
+                Toast.makeText(MessageActivity.this, "Can't send text", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            Toast.makeText(MessageActivity.this, "Points to send: " + pointsToSend, Toast.LENGTH_SHORT).show();
+
+            pointsOfUser=((Global) this.getApplication()).getPoints();
+
+            int newPoints = pointsOfUser - Integer.parseInt(pointsToSend);
             if(newPoints >= 0) {
                 ((Global) this.getApplication()).setPoints(newPoints);
                 Toast.makeText(MessageActivity.this, "You have now " + newPoints + "Points", Toast.LENGTH_SHORT).show();

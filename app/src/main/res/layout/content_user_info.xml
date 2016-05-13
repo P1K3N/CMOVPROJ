@@ -16,7 +16,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Past Trajectories"
+        android:text="@string/pastTraj"
         android:id="@+id/btnToTraj"
         android:layout_below="@+id/textPoints"
         android:layout_centerHorizontal="true"

@@ -24,7 +24,7 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList
     private String str;
     private int numberOfTrajectories;
     private ArrayList<ArrayList<LatLng>> trajectories = new ArrayList<>();
-    private ArrayList<LatLng> course;
+    private ArrayList<LatLng> course= new ArrayList<>();
 
     public GetTrajectoriesFromServer(TrajectoriesActivity activity) {
         this.trajActv=activity;
@@ -36,6 +36,8 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList
     @Override
     protected ArrayList<ArrayList<LatLng>>  doInBackground(String... inputString) {
         try {
+
+            Log.d(TAG, "Get Traj from Server");
             Socket socket = new Socket("10.0.2.2", 6000);
 
             ObjectOutputStream outBound = new ObjectOutputStream(socket.getOutputStream());
@@ -54,20 +56,21 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList
 
             if(str == null) {
                 socket.close();
-                Log.v(TAG, "Wrong username or password...");
+                Log.d(TAG, "Wrong username or password...");
             }
 
             message = new JSONObject(str);
 
             numberOfTrajectories = message.getInt("Trajectories");
-            Log.v(TAG, "Number of trajs:" + numberOfTrajectories);
+            Log.d(TAG, "Number of trajs:" + numberOfTrajectories);
 
             if(numberOfTrajectories == 0){
                 socket.close();
+                return null;
             }else{
                 for(int i=0; i<numberOfTrajectories;i++){
                     int nOfHops= message.getInt("Locations");
-                    Log.v(TAG, "Number of hops:" + nOfHops);
+                    Log.d(TAG, "Number of hops:" + nOfHops);
 
                     for(int j=0;j<nOfHops;j++){
                         course.add(new LatLng(message.getDouble("Latitude" + j),message.getDouble("Longitude" + j)));
@@ -78,7 +81,7 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList
             socket.close();
 
         } catch (Throwable e) {
-            Log.v(TAG, "fail " + e.getMessage());
+            Log.d(TAG, "fail " + e.getMessage());
         }
 
         return trajectories;
@@ -91,8 +94,8 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList
     protected void onPostExecute(ArrayList<ArrayList<LatLng>>  result) {
         ListView list = trajActv.getListView();
 
-
         if (result != null) {
+            Log.d(TAG, "Should show trajectories");
             this.trajActv.setTrajectories(result);
             ArrayList<String> listStr=new ArrayList<>();
 

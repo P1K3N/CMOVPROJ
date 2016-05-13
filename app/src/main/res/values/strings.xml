@@ -3,7 +3,7 @@
     <string name="passwordLogin">Enter Password</string>
     <string name="exampleUser">User1</string>
     <string name="sendPoints">Enter number of points</string>
-
+    <string name="pastTraj">User Trajectories</string>
 
 
     <string name="app_name">UbiBike</string>

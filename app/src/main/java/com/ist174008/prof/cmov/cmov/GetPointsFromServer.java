@@ -19,11 +19,12 @@ import java.net.Socket;
 public class GetPointsFromServer extends AsyncTask<String, Void, Integer> {
 
     private static final String TAG = "GetPoints";
-    private Activity act;
-    private Integer points;
+    private InfoActivity infoActivity;
+    private Integer serverPoints;
+    private String userName;
 
-    public GetPointsFromServer(Activity v){
-        this.act=v;
+    public GetPointsFromServer(InfoActivity v){
+        this.infoActivity=v;
     }
 
     @Override
@@ -32,6 +33,7 @@ public class GetPointsFromServer extends AsyncTask<String, Void, Integer> {
     @Override
     protected Integer doInBackground(String... inputString) {
         try {
+            Log.d(TAG, "Getting Points");
             Socket socket = new Socket("10.0.2.2", 6000);
 
             ObjectOutputStream outBound = new ObjectOutputStream(socket.getOutputStream());
@@ -44,25 +46,27 @@ public class GetPointsFromServer extends AsyncTask<String, Void, Integer> {
 
             message.put("Username", inputString[0]);
 
+            userName = inputString[0];
+
             outBound.writeObject(message.toString());
 
             String response = (String) inBound.readObject();
 
             if(response == null) {
                 socket.close();
-                throw new SecurityException("Wrong username or password...");
+                Log.d(TAG, "Wrong username or password...");
             }
 
             message = new JSONObject(response);
 
-            points = message.getInt("Score");
+            serverPoints = message.getInt("Score");
             socket.close();
 
         } catch (Throwable e) {
-            Log.v(TAG, "fail" + e.getMessage());
+            Log.d(TAG, "fail" + e.getMessage());
         }
 
-        return points;
+        return serverPoints;
 
     }
 
@@ -72,14 +76,8 @@ public class GetPointsFromServer extends AsyncTask<String, Void, Integer> {
     @Override
     protected void onPostExecute(Integer result) {
         if(result !=null) {
-
-            TextView txt = (TextView) act.findViewById(R.id.textPoints);
-            txt.append("You have accumulated " + result + " Points");
-            ((Global) act.getApplication()).setPoints(result);
-        }else{
-
-            TextView txt = (TextView) act.findViewById(R.id.textPoints);
-            txt.append("Could not retrieve points from server");
+            Log.d(TAG, "Display Points");
+            infoActivity.updateServerPoints(result);
         }
     }
 }

@@ -23,6 +23,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText editPassword;
     private Global g;
     private SharedPreferences settings;
+    private String mail;
+    private String password;
 
     private static final String TAG = "LoginToServer";
 
@@ -69,11 +71,7 @@ public class LoginActivity extends AppCompatActivity {
     private OnClickListener btnLOGIN2 = new OnClickListener() {
         public void onClick(View v) {
 
-            String mail = editMail.getText().toString();
-            String password = editPassword.getText().toString();
-
-            g.setUser(mail);
-            g.setPassword(password);
+            log();
 
             new LoginToServer(getApplicationContext()).execute(mail, password, "Login User");
         }
@@ -82,11 +80,7 @@ public class LoginActivity extends AppCompatActivity {
     private OnClickListener btnRegister = new OnClickListener() {
         public void onClick(View v) {
 
-            String mail = editMail.getText().toString();
-            String password = editPassword.getText().toString();
-
-            g.setUser(mail);
-            g.setPassword(password);
+            log();
 
             new LoginToServer(getApplicationContext()).execute(mail, password, "Register");
         }
@@ -96,6 +90,15 @@ public class LoginActivity extends AppCompatActivity {
 
         findViewById(R.id.btnLOGIN).setOnClickListener(btnLOGIN2);
         findViewById(R.id.buttonRegister).setOnClickListener(btnRegister);
+
+    }
+
+    public void log(){
+        mail = editMail.getText().toString();
+        password = editPassword.getText().toString();
+
+        g.setUser(mail);
+        g.setPassword(password);
 
     }
 

@@ -24,6 +24,7 @@ public class SendPointsToServer extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... inputString) {
         try {
+            Log.d(TAG, "Send points to Server");
             Socket socket = new Socket("10.0.2.2", 6000);
 
             ObjectOutputStream outBound = new ObjectOutputStream(socket.getOutputStream());
@@ -46,7 +47,7 @@ public class SendPointsToServer extends AsyncTask<String, Void, String> {
 
 
         } catch (Throwable e) {
-            Log.v(TAG, "fail" + e.getMessage());
+            Log.d(TAG, "fail" + e.getMessage());
         }
 
         return "response";
