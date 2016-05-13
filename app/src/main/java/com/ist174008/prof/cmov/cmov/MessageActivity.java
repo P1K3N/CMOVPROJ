@@ -133,7 +133,7 @@ public class MessageActivity extends AppCompatActivity {
 
     public boolean  updatePoints(){
         //Points(2323323)
-        if(chatText.getText().toString().startsWith("Points:")) {
+        if(chatText.getText().toString().startsWith("Points(")) {
 
             int start = chatText.getText().toString().indexOf("(");
             int finish = chatText.getText().toString().indexOf(")");
