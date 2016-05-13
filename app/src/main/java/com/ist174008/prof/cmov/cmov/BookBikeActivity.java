@@ -259,17 +259,17 @@ public class BookBikeActivity extends FragmentActivity
         Location.distanceBetween(stationList.get(0).latitude, stationList.get(0).longitude, thisLoc.latitude, thisLoc.longitude, distanceStation1);
         Location.distanceBetween(stationList.get(1).latitude, stationList.get(1).longitude, thisLoc.latitude, thisLoc.longitude, distanceStation2);
 
-        Toast.makeText(getApplicationContext(), "DISTANCE STATION 1: " + distanceStation1[0], Toast.LENGTH_LONG).show();
-        Toast.makeText(getApplicationContext(), "DISTANCE STATION 2: " + distanceStation2[0], Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "DISTANCE STATION 1: " + (int) distanceStation1[0], Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "DISTANCE STATION 2: " + (int) distanceStation2[0], Toast.LENGTH_LONG).show();
 
         // Near Stations ?
-        if(distanceStation1[0] <= 20){
+        if( (int) distanceStation1[0] <= 20){
             ((Global) this.getApplication()).setNearStation1(true);
         }else{
             ((Global) this.getApplication()).setNearStation1(false);
         }
 
-        if(distanceStation2[0] <= 20){
+        if( (int) distanceStation2[0] <= 20){
             ((Global) this.getApplication()).setNearStation2(true);
         }else{
             ((Global) this.getApplication()).setNearStation1(false);
@@ -305,6 +305,7 @@ public class BookBikeActivity extends FragmentActivity
             }
             Log.d(TAG, "Drop off bike");
         }
+        Log.d(TAG, "hasBike=" + hasBike + " nearBike=" + nearBike + " bookedStation=" + bookedStation + " nearStation1=" + nearStation1 + " nearStation2=" + nearStation2);
     }
 
     public void pickUp(boolean isNearStation,String station){
