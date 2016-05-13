@@ -158,18 +158,19 @@ public class BookBikeActivity extends FragmentActivity
     @Override
     public void onInfoWindowClick(Marker marker) {
 
+        if(!biking) {
+            if (marker.getTitle().equals("Station 1")) {
+                Toast.makeText(getApplicationContext(), "Bike Successfully Booked", Toast.LENGTH_SHORT).show();
 
-        if (marker.getTitle().equals("Station 1")) {
-            Toast.makeText(getApplicationContext(), "Bike Successfully Booked", Toast.LENGTH_SHORT).show();
+                new AlertServerBookBike().execute(userName, "Station 1");
+                ((Global) this.getApplication()).setBookStation("Station 1");
+            }
+            if (marker.getTitle().equals("Station 2")) {
+                Toast.makeText(getApplicationContext(), "Bike Successfully Booked", Toast.LENGTH_SHORT).show();
 
-            new AlertServerBookBike().execute(userName, "Station 1");
-            ((Global) this.getApplication()).setBookStation("Station 1");
-        }
-        if (marker.getTitle().equals("Station 2")) {
-            Toast.makeText(getApplicationContext(), "Bike Successfully Booked", Toast.LENGTH_SHORT).show();
-
-            new AlertServerBookBike().execute(userName, "Station 2");
-            ((Global) this.getApplication()).setBookStation("Station 2");
+                new AlertServerBookBike().execute(userName, "Station 2");
+                ((Global) this.getApplication()).setBookStation("Station 2");
+            }
         }
     }
 
@@ -208,7 +209,7 @@ public class BookBikeActivity extends FragmentActivity
             if(biking) {
                 newCourse.add(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
                 calculatePoints(mLastLocation,location);
-                Log.d(TAG, "Adding courses in IF");
+                Log.d(TAG, "Adding courses ");
 
             }else {
                 if(!newCourse.isEmpty()) {
@@ -216,17 +217,6 @@ public class BookBikeActivity extends FragmentActivity
                     newCourse.clear();
                 }
             }
-
-
-            /*new Thread(new Runnable() {
-                public void run() {
-                    while (biking) {
-                        newCourse.add(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
-                        Log.d(TAG, "Adding courses in WHILE");
-                    }
-                }
-            }).start();
-        }*/
         }
 
         mLastLocation = location;
@@ -253,62 +243,62 @@ public class BookBikeActivity extends FragmentActivity
         List<LatLng> stationList = ((Global) this.getApplication()).getStations();
 
 
-        // Distance to stations DISTANCE FUNCTION NOT TESTED !!!!!!!!!!!!!!!!!!!!!!!!
-        float[] distanceStation1 = {0.0f};
+        // Distance to stations
+        /*float[] distanceStation1 = {0.0f};
         float[] distanceStation2 = {0.0f};
         Location.distanceBetween(stationList.get(0).latitude, stationList.get(0).longitude, thisLoc.latitude, thisLoc.longitude, distanceStation1);
         Location.distanceBetween(stationList.get(1).latitude, stationList.get(1).longitude, thisLoc.latitude, thisLoc.longitude, distanceStation2);
 
-        Toast.makeText(getApplicationContext(), "DISTANCE STATION 1: " + (int) distanceStation1[0], Toast.LENGTH_LONG).show();
-        Toast.makeText(getApplicationContext(), "DISTANCE STATION 2: " + (int) distanceStation2[0], Toast.LENGTH_LONG).show();
+        int twenty= 20;
+        int dist1= Math.round(distanceStation1[0]);
+        int dist2= Math.round(distanceStation2[0]);
 
         // Near Stations ?
-        if( (int) distanceStation1[0] <= 20){
+        if( dist1 < twenty){
             ((Global) this.getApplication()).setNearStation1(true);
         }else{
             ((Global) this.getApplication()).setNearStation1(false);
         }
 
-        if( (int) distanceStation2[0] <= 20){
+        if( dist2 < twenty){
             ((Global) this.getApplication()).setNearStation2(true);
         }else{
-            ((Global) this.getApplication()).setNearStation1(false);
-        }
 
-        // Near a Station ?
+            ((Global) this.getApplication()).setNearStation2(false);
+        }*/
+
         boolean nearStation1 = ((Global) this.getApplication()).isNearStation1();
         boolean nearStation2 = ((Global) this.getApplication()).isNearStation2();
-
-
-        // Pick up bike Station 1
-        pickUp(nearStation1,"Station 1");
-
-
-        // Pick up bike Station 2
-        pickUp(nearStation2,"Station 2");
-
-
         boolean hasBike = ((Global) this.getApplication()).hasPickedBike();
         boolean nearBike = ((Global) this.getApplication()).isUserNearBike();
         String bookedStation = ((Global) this.getApplication()).getBookStation();
 
-        //Drop Off Bike
-        if(nearBike && hasBike) {
-            if(nearStation1 && bookedStation.equals("no")){
+        // If user does PickUp , can't do DropOff
 
+        // Pick up bike Station 1
+        if (pickUp(nearStation1, "Station 1")) {
+            return;
+        }
+
+        // Pick up bike Station 2
+        if (pickUp(nearStation2, "Station 2")) {
+            return;
+        }
+
+        //Drop Off Bike
+        if(!nearBike && hasBike) {
+            if(nearStation1 && bookedStation.equals("no")){
                 dropOff("Station 1");
             }
 
             if(nearStation2 && bookedStation.equals("no")){
-
                 dropOff("Station 2");
             }
-            Log.d(TAG, "Drop off bike");
         }
         Log.d(TAG, "hasBike=" + hasBike + " nearBike=" + nearBike + " bookedStation=" + bookedStation + " nearStation1=" + nearStation1 + " nearStation2=" + nearStation2);
     }
 
-    public void pickUp(boolean isNearStation,String station){
+    public boolean pickUp(boolean isNearStation,String station){
         boolean nearBike = ((Global) this.getApplication()).isUserNearBike();
         String bookedStation = ((Global) this.getApplication()).getBookStation();
 
@@ -323,9 +313,11 @@ public class BookBikeActivity extends FragmentActivity
                         AsyncTask.THREAD_POOL_EXECUTOR,
                         userName,
                         station);
-                Log.d(TAG, "Picked up bike");
+                Log.d(TAG, "PICK UP");
+                return true;
             }
         }
+        return false;
     }
 
     public void dropOff(String station){
@@ -336,6 +328,7 @@ public class BookBikeActivity extends FragmentActivity
 
         ((Global) this.getApplication()).setPickedBike(false);
         ((Global) this.getApplication()).setBiking(false);
+        Log.d(TAG, "DROP OFF");
     }
 
 
@@ -346,51 +339,6 @@ public class BookBikeActivity extends FragmentActivity
         ((Global) this.getApplication()).addPoints((int) (result[0] / MIL));
         Log.d(TAG, "Calculation Points " + (int) (result[0] / MIL) );
     }
-
-   /* public class CreateTrajectory extends AsyncTask<String, Void, String> {
-        private Location location;
-
-        public CreateTrajectory(Location loc){
-            this.location = loc;
-        }
-
-        @Override
-        protected void onPreExecute() {}
-
-        @Override
-        protected String doInBackground(final String... inputString) {
-            Log.d(TAG, "Biking background " );
-
-            new Thread(new Runnable() {
-
-                public void run() {
-
-                    while (biking) {
-
-                        newTrajectory.add(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()));
-
-
-                        try{
-                            Thread.sleep(10000);
-                        }catch (InterruptedException e){
-                            Log.d(TAG,"Biking " + e.getMessage());
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                }
-            }).start();
-
-         return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {}
-
-        @Override
-        protected void onPostExecute(String result) {
-
-        }
-    }*/
 
 
     public void onStatusChanged(String provider, int status, Bundle extras) {

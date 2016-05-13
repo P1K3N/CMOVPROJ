@@ -151,6 +151,7 @@ public class MessageActivity extends AppCompatActivity {
             if(newPoints >= 0) {
                 ((Global) this.getApplication()).setPoints(newPoints);
                 Toast.makeText(MessageActivity.this, "You have now " + newPoints + "Points", Toast.LENGTH_SHORT).show();
+
                 return true;
             }else{
                 Toast.makeText(MessageActivity.this, "Not Enough Points to send", Toast.LENGTH_SHORT).show();

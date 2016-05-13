@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 ;
 
@@ -25,17 +26,16 @@ public class TrajectoriesActivity extends ListActivity {
     private ArrayList<ArrayList<LatLng>>  trajectories = new ArrayList<>();
     private String mail;
     private String password;
+    private int numberOfTrajectories;
 
 
-    public void setTrajectories(ArrayList<ArrayList<LatLng>>  trajectories){
-        this.trajectories = trajectories;
-        ((Global) this.getApplication()).setTrajectories(trajectories);
+    public void setTrajectories(ArrayList<ArrayList<LatLng>> trajectories){
+      ((Global) this.getApplication()).setTrajectories(trajectories);
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        new GetTrajectoriesFromServer(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,mail, password);
 
         //send trajectories to server
         Integer nOfTrajs= ((Global) this.getApplication()).getNumberOfTrajectories();
@@ -51,13 +51,34 @@ public class TrajectoriesActivity extends ListActivity {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.content_trajectories);
+        Log.d(TAG, "ENTER trajectories ");
+
+        new GetTrajectoriesFromServer(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mail);
 
         ListView listTraj = getListView();
 
         mail = ((Global) this.getApplication()).getUser();
         password = ((Global) this.getApplication()).getPassword();
-        Log.d(TAG, "ENTER trajectories " + listTraj);
+        numberOfTrajectories = ((Global) this.getApplication()).getNumberOfTrajectories();
+        this.trajectories = ((Global) this.getApplication()).getTrajectories();
 
+        ArrayList<String> listStr=new ArrayList<>();
+
+        if(trajectories == null || trajectories.isEmpty()) {
+            String[] val = {NO_TRAJS};
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getApplicationContext(), R.layout.list_black_text, R.id.list_content, val);
+            listTraj.setAdapter(adapter);
+        }else {
+            for (int i = 0; i < numberOfTrajectories; i++) {
+                listStr.add("Trajectory " + i + 1);
+            }
+
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getApplicationContext(),
+                    android.R.layout.simple_list_item_1, android.R.id.text1, listStr);
+
+            listTraj.setAdapter(adapter);
+        }
         listTraj.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override

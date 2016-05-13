@@ -91,7 +91,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
 
         new GetStationsFromServer(this).execute();
         String userName = ((Global) this.getApplication()).getUser();
-        ((Global) this.getApplication()).setPoints(10);
 
 
         // WIfi direct ON
@@ -219,7 +218,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
                         if(mManager !=null && mChannel !=null) {
                             mManager.requestPeers(mChannel, activity);
                             mManager.requestGroupInfo(mChannel, activity);
-                            Log.d(TAG, "Peer Updated!");
                         }
                         try{
                             Thread.sleep(10000);
@@ -290,20 +288,48 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         // compile list of devices in range
         for (SimWifiP2pDevice device : peers.getDeviceList()) {
             String devstr = "(" + device.deviceName + ")" + device.getVirtIp();
-            //peersStr.append(devstr);
 
             // add devices to list
             listInRange.add(devstr);
-            Log.d(TAG, "LIST ADDED RANGE" + listInRange);
 
-            // bike in range
-            if(device.deviceName.startsWith("Bike") || device.deviceName.startsWith("bike") ){
+        }
+
+
+        if(listInRange.isEmpty()){
+            ((Global) this.getApplication()).setUserNearBike(false);
+            ((Global) this.getApplication()).setNearStation1(false);
+            ((Global) this.getApplication()).setNearStation2(false);
+        }
+
+        // Bike in range?
+        for(int i=0;i<listInRange.size();i++){
+            if(listInRange.get(i).contains("Bike") || listInRange.get(i).contains("bike") ){
                 ((Global) this.getApplication()).setUserNearBike(true);
-                Log.d(TAG, "Bike in range" + device.deviceName);
-
+                Log.d(TAG, "Bike in range ");
+                break;
             }else{
                 ((Global) this.getApplication()).setUserNearBike(false);
-                Log.d(TAG, "No bikes in range");
+            }
+        }
+        // Station 1 in range?
+        for(int i=0;i<listInRange.size();i++){
+            if(listInRange.get(i).contains("Station1") || listInRange.get(i).contains("station1") ){
+                ((Global) this.getApplication()).setNearStation1(true);
+                Log.d(TAG, "Station 1 in range ");
+                break;
+            }else{
+                ((Global) this.getApplication()).setNearStation1(false);
+            }
+        }
+
+        // Station 2 in range?
+        for(int i=0;i<listInRange.size();i++){
+            if(listInRange.get(i).contains("Station2") || listInRange.get(i).contains("station2") ){
+                ((Global) this.getApplication()).setNearStation2(true);
+                Log.d(TAG, "Station 2 in range ");
+                break;
+            }else{
+                ((Global) this.getApplication()).setNearStation2(false);
             }
         }
     }
@@ -332,9 +358,10 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
             // add contacts to list
             if(device.getVirtIp() !=null) {
                 listInGroup.add(devstr);
-                Log.d(TAG, "LIST ADDED  GROUP" + listInGroup);
+
             }
         }
+        Log.d(TAG, "LIST Group" + listInGroup);
     }
 
     /* Button listeners

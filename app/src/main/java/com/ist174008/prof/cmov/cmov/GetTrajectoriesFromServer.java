@@ -52,67 +52,62 @@ public class GetTrajectoriesFromServer extends AsyncTask<String, Void, ArrayList
 
             outBound.writeObject(message.toString());
 
-            str =  (String) inBound.readObject();
+            String str = (String) inBound.readObject();
 
             if(str == null) {
                 socket.close();
-                Log.d(TAG, "Wrong username or password...");
+                Log.d(TAG,"fail");
+                return null;
             }
 
             message = new JSONObject(str);
 
-            numberOfTrajectories = message.getInt("Trajectories");
-            Log.d(TAG, "Number of trajs:" + numberOfTrajectories);
+            ArrayList<JSONObject> jsonArray = new ArrayList<>();
 
-            if(numberOfTrajectories == 0){
+            outBound.writeObject("");
+
+            for(int i = 0; i < message.getInt("Trajectories"); i++) {
+                str = (String) inBound.readObject();
+
+                jsonArray.add(new JSONObject(str));
+
+                outBound.writeObject("");
+            }
+            str = (String) inBound.readObject();
+
+            if(str == null) {
                 socket.close();
+                Log.d(TAG, "Fail ");
                 return null;
-            }else{
-                for(int i=0; i<numberOfTrajectories;i++){
-                    int nOfHops= message.getInt("Locations");
-                    Log.d(TAG, "Number of hops:" + nOfHops);
+            }
 
-                    for(int j=0;j<nOfHops;j++){
-                        course.add(new LatLng(message.getDouble("Latitude" + j),message.getDouble("Longitude" + j)));
-                    }
-                    trajectories.add(course);
+            for(JSONObject json : jsonArray) {
+
+                for(int i = 0; i < json.getInt("Locations"); i++) {
+                    LatLng latlng = new LatLng(json.getDouble("Latitude" + i),json.getDouble("Longitude" + i));
+                    course.add(latlng);
                 }
+                trajectories.add(course);
             }
             socket.close();
 
         } catch (Throwable e) {
-            Log.d(TAG, "fail " + e.getMessage());
+            Log.d(TAG, " Fail ");
+            return null;
         }
-
         return trajectories;
     }
+
+
 
     @Override
     protected void onProgressUpdate(Void... values) {}
 
     @Override
     protected void onPostExecute(ArrayList<ArrayList<LatLng>>  result) {
-        ListView list = trajActv.getListView();
-
         if (result != null) {
             Log.d(TAG, "Should show trajectories");
             this.trajActv.setTrajectories(result);
-            ArrayList<String> listStr=new ArrayList<>();
-
-            for(int i=0;i<numberOfTrajectories;i++) {
-                listStr.add("Trajectory " + i+1);
-            }
-
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv.getApplicationContext(),
-                    android.R.layout.simple_list_item_1, android.R.id.text1,listStr);
-
-            list.setAdapter(adapter);
-
-        }else{
-            String[] val = {"No trajectories to show"};
-
-            ArrayAdapter<String> adapter = new ArrayAdapter<>(trajActv.getApplicationContext(),R.layout.list_black_text,R.id.list_content,val);
-            list.setAdapter(adapter);
         }
     }
 }

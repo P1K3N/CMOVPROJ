@@ -104,10 +104,10 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    public class LoginToServer extends AsyncTask<String, Void, String> {
+    public class LoginToServer extends AsyncTask<String, Void, Boolean> {
 
         private Context mActivity;
-        private String response;
+        private Boolean response;
 
         public LoginToServer(Context activity){
             this.mActivity = activity;
@@ -117,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
         protected void onPreExecute() {}
 
         @Override
-        protected String doInBackground(String... inputString) {
+        protected Boolean doInBackground(String... inputString) {
             try {
                 Socket socket = new Socket("10.0.2.2", 6000);
 
@@ -135,14 +135,14 @@ public class LoginActivity extends AppCompatActivity {
 
                 outBound.writeObject(message.toString());
 
-                response = (String) inBound.readObject();
+                response = (boolean) inBound.readObject();
 
                 socket.close();
 
 
             } catch (Throwable e) {
                 Log.v(TAG, "fail " + e.getMessage());
-                return null;
+                return false;
             }
             return response;
         }
@@ -151,11 +151,11 @@ public class LoginActivity extends AppCompatActivity {
         protected void onProgressUpdate(Void... values) {}
 
         @Override
-        protected void onPostExecute(String result) {
-            if (result != null) {
-
+        protected void onPostExecute(Boolean result) {
+            Log.d(TAG, " result=" + result);
+            if (result) {
                 Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                g.setSessionToken(result);
+                //g.setSessionToken(result);
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putBoolean("connected", true);
                 editor.apply();
@@ -164,7 +164,6 @@ public class LoginActivity extends AppCompatActivity {
             }else{
                 Toast.makeText(mActivity,"Invalid Username/Password Combination",Toast.LENGTH_SHORT).show();
             }
-
         }
     }
 }

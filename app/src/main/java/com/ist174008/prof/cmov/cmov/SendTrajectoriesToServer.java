@@ -39,22 +39,21 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, Void> {
 
             JSONObject message = new JSONObject();
 
-            message.put("Type", "New Trajectory");
-
-            message.put("Username", inputString[0]);
-
-            message.put("Locations", j);
-
-            outBound.writeObject(message.toString());
-
-            boolean ack = (boolean) inBound.readObject();
-
-            if(!ack) {
-                socket.close();
-                Log.v(TAG, "fail" );
-            }
-
             for(int i = 0; i < j; i++){
+                message.put("Type", "New Trajectory");
+
+                message.put("Username", inputString[0]);
+
+                message.put("Locations", trajectories.get(i).size());
+
+                outBound.writeObject(message.toString());
+
+                boolean ack = (boolean) inBound.readObject();
+
+                if(!ack) {
+                    socket.close();
+                    Log.v(TAG, "fail" );
+                }
                 for(LatLng coord: trajectories.get(i)){
                     message.put("Latitude", coord.latitude);
                     message.put("Longitude", coord.longitude);
@@ -62,15 +61,16 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, Void> {
                     inBound.readObject();
 
                 }
+                ack = (boolean) inBound.readObject();
+
+                if(!ack) {
+                    socket.close();
+                    Log.v(TAG, "fail");
+                }
+
                 Log.v(TAG, "SENDING Trajs");
             }
 
-            ack = (boolean) inBound.readObject();
-
-            if(!ack) {
-                socket.close();
-                Log.v(TAG, "fail");
-            }
 
             socket.close();
 
