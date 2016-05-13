@@ -239,7 +239,6 @@ public class BookBikeActivity extends FragmentActivity
 
         //move map camera
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 4));
-        // mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(6));
 
         LatLng thisLoc = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
