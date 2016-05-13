@@ -29,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginToServer";
 
 
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -65,6 +66,7 @@ public class LoginActivity extends AppCompatActivity {
         editMail = (EditText) findViewById(R.id.editTextEmail);
         editPassword = (EditText) findViewById(R.id.editTextPassword);
         g = ((Global) getApplicationContext());
+
     }
 
 
@@ -102,10 +104,10 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    public class LoginToServer extends AsyncTask<String, Void, Boolean> {
+    public class LoginToServer extends AsyncTask<String, Void, String> {
 
         private Context mActivity;
-        private boolean response;
+        private String response;
 
         public LoginToServer(Context activity){
             this.mActivity = activity;
@@ -115,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
         protected void onPreExecute() {}
 
         @Override
-        protected Boolean doInBackground(String... inputString) {
+        protected String doInBackground(String... inputString) {
             try {
                 Socket socket = new Socket("10.0.2.2", 6000);
 
@@ -133,14 +135,14 @@ public class LoginActivity extends AppCompatActivity {
 
                 outBound.writeObject(message.toString());
 
-                response = (boolean) inBound.readObject();
+                response = (String) inBound.readObject();
 
                 socket.close();
 
 
             } catch (Throwable e) {
                 Log.v(TAG, "fail " + e.getMessage());
-                return false;
+                return null;
             }
             return response;
         }
@@ -149,10 +151,11 @@ public class LoginActivity extends AppCompatActivity {
         protected void onProgressUpdate(Void... values) {}
 
         @Override
-        protected void onPostExecute(Boolean result) {
-            if (result) {
-                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+        protected void onPostExecute(String result) {
+            if (result != null) {
 
+                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                g.setSessionToken(result);
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putBoolean("connected", true);
                 editor.apply();

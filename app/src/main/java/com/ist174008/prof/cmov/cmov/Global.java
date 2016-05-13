@@ -15,14 +15,15 @@ public class Global extends Application {
     private int points;
     private LatLng myLoc;
     private int numberOfStation;
-    private ArrayList<ArrayList<LatLng>>  trajectories = new ArrayList<>();
+    private ArrayList<ArrayList<LatLng>> trajectories = new ArrayList<>();
 
-    private boolean userNearBike=false;
-    private boolean nearStation1=false;
-    private boolean nearStation2=false;
-    private String bookStation ="no";
-    private boolean pickedBike=false;
-    private boolean biking=false;
+    private boolean userNearBike = false;
+    private boolean nearStation1 = false;
+    private boolean nearStation2 = false;
+    private String bookStation = "no";
+    private boolean pickedBike = false;
+    private boolean biking = false;
+    private String sessionToken;
 
 
     public ArrayList<ArrayList<LatLng>> getTrajectories() {
@@ -32,6 +33,7 @@ public class Global extends Application {
     public void setTrajectories(ArrayList<ArrayList<LatLng>> trajectories) {
         this.trajectories = trajectories;
     }
+
     public int getNumberOfStation() {
         return numberOfStation;
     }
@@ -44,7 +46,7 @@ public class Global extends Application {
         this.trajectories.add(courses);
     }
 
-    public int getNumberOfTrajectories(){
+    public int getNumberOfTrajectories() {
         return this.trajectories.size();
     }
 
@@ -141,4 +143,12 @@ public class Global extends Application {
     public void setPassword(String p) {
         this.password = p;
     }
+
+
+    public String getSessionToken() {
+        return sessionToken;
+    }
+
+    public void setSessionToken(String u) {
+        this.sessionToken = u;}
 }
