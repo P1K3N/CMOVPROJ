@@ -17,10 +17,6 @@ public class Global extends Application {
     private int numberOfStation;
     private ArrayList<ArrayList<LatLng>>  trajectories = new ArrayList<>();
 
-    private SimWifiP2pManager manager=null;
-    private SimWifiP2pManager.Channel channel=null;
-
-
     private boolean userNearBike=false;
     private boolean nearStation1=false;
     private boolean nearStation2=false;
@@ -98,22 +94,6 @@ public class Global extends Application {
 
     public void setUserNearBike(boolean userNearBike) {
         this.userNearBike = userNearBike;
-    }
-
-    public SimWifiP2pManager.Channel getChannel() {
-        return channel;
-    }
-
-    public void setChannel(SimWifiP2pManager.Channel channel) {
-        this.channel = channel;
-    }
-
-    public SimWifiP2pManager getManager() {
-        return manager;
-    }
-
-    public void setManager(SimWifiP2pManager mManager) {
-        this.manager = mManager;
     }
 
     private List<LatLng> stations = new ArrayList<>();

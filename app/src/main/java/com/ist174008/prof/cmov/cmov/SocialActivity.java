@@ -57,7 +57,6 @@ public class SocialActivity extends ListActivity {
                 String itemValue = (String) getListView().getItemAtPosition(position);
                 Log.d(TAG,"CLICKED LIST " + itemValue);
 
-
                 if(!itemValue.equals(NO_IP)) {
                     int start = itemValue.indexOf(")");
                     String ipAddrs = itemValue.substring(start + 1);

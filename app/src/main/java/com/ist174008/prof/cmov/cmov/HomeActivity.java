@@ -66,7 +66,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // stopService()
         Toast.makeText(HomeActivity.this, "DESTORYED HOME ACTIVITY", Toast.LENGTH_SHORT).show();
     }
 
@@ -94,8 +93,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         String userName = ((Global) this.getApplication()).getUser();
         ((Global) this.getApplication()).setPoints(10);
 
-        //new GetPointsFromServer(this).execute(userName);
-        //new SendPointsToServer().execute(userName, points); // (int) points then to string
 
         // WIfi direct ON
         Intent intent = new Intent(getApplicationContext(), SimWifiP2pService.class);
@@ -113,13 +110,6 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
         filter.addAction(SimWifiP2pBroadcast.WIFI_P2P_GROUP_OWNERSHIP_CHANGED_ACTION);
         mReceiver = new SimWifiP2pBroadcastReceiver(this);
         registerReceiver(mReceiver, filter);
-
-        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        /*((Global) this.getApplication()).setChannel(mChannel);
-        ((Global) this.getApplication()).setManager(mManager);
-
-        Intent serviceIntent = new Intent();
-        startService(serviceIntent);*/
 
         new PeerUpdate(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
@@ -229,7 +219,7 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
                         if(mManager !=null && mChannel !=null) {
                             mManager.requestPeers(mChannel, activity);
                             mManager.requestGroupInfo(mChannel, activity);
-                            Log.d(TAG, "Peer Updated!!");
+                            Log.d(TAG, "Peer Updated!");
                         }
                         try{
                             Thread.sleep(10000);
@@ -307,12 +297,13 @@ public  class HomeActivity extends AppCompatActivity implements SimWifiP2pManage
             Log.d(TAG, "LIST ADDED RANGE" + listInRange);
 
             // bike in range
-            if(device.getVirtIp() == null){
+            if(device.deviceName.startsWith("Bike") || device.deviceName.startsWith("bike") ){
                 ((Global) this.getApplication()).setUserNearBike(true);
+                Log.d(TAG, "Bike in range" + device.deviceName);
 
-                Toast.makeText(HomeActivity.this, "BIKE IN RANGE ", Toast.LENGTH_SHORT).show();
             }else{
                 ((Global) this.getApplication()).setUserNearBike(false);
+                Log.d(TAG, "No bikes in range");
             }
         }
     }
