@@ -70,8 +70,6 @@ public class SendTrajectoriesToServer extends AsyncTask<String, Void, Void> {
 
                 Log.v(TAG, "SENDING Trajs");
             }
-
-
             socket.close();
 
         } catch (Throwable e) {
